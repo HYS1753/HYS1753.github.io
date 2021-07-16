@@ -289,4 +289,15 @@ defaults:
       related: true
       sidebar:
         nav: "docs"
+  # _docs
+  - scope:
+      path: ""
+      type: docs
+    value:
+      layout: single
+      share: # true
+      read_time: # true
+      author_profile: true
+      sidebar:
+        nav: "docs"
 
