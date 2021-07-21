@@ -1,5 +1,9 @@
 # main links
 main:
+  - tilte: "By Year"
+    url: /year-archive/
+  - title: "By Month"
+    url: /month-archive/
   - title: "Categories"
     url: /categories/
   # - title: "Quick-Start Guide"
