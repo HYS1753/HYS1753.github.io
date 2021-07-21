@@ -11,6 +11,9 @@ tag:
     - 회선제어
     - 흐름제어
     - 오류제어
+# 목차
+toc: true  
+toc_sticky: true 
 # sidebar:
 #     nav: "docs"
 ---
