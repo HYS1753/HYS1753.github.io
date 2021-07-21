@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-17
+date: 2021-07-21
 title: "Physical Layer"
 categories: 
     - Network
@@ -24,7 +24,7 @@ sidebar:
 
 ##  통신케이블
 
-- UTP(Unshielded Twisted-Pair) : 물리계층에서 주로 사용하는 대표적인 케이블
+- **UTP(Unshielded Twisted-Pair)** : 물리계층에서 주로 사용하는 대표적인 케이블
     - Direct Cable(T568-B - T568-B) : 서로 다른 장비 간에 연결할 떄 사용(라우터 - 스위치, PC - 스위치)
     - Cross Cable(T568-B - T568-A) : 서로 같은장비 간에 연결할 떄 사용(라우터 - 라우터, 스위치 - 스위치)
 
@@ -35,8 +35,8 @@ sidebar:
         - 따라서 같은 장비간에는 연결방향이 같아 Cross Cable을 사용해 연결방향을 바꿔준다.
         - 다른 장비 간에는 연결방향이 다르기 때문에 Direct Cable을 사용한다.
 
-- STP(Shieled Twisted-Pair) : UTP와 달리 케이블 주위를 어떤 절연체로 감싸 EMI를 줄여 성능이 좋은 케이블, UTP에 비해 비싸다는 단점이 있으며 이미 UTP로 구성된 네트워크가 많아 STP 보다 UTP가 주로 사용
-- 광케이블 : 광섬유를 사용한 케이블
+- **STP(Shieled Twisted-Pair)** : UTP와 달리 케이블 주위를 어떤 절연체로 감싸 EMI를 줄여 성능이 좋은 케이블, UTP에 비해 비싸다는 단점이 있으며 이미 UTP로 구성된 네트워크가 많아 STP 보다 UTP가 주로 사용
+- **광케이블** : 광섬유를 사용한 케이블
 
 
 ## 허브(Hub)
