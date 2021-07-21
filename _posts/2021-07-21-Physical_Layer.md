@@ -5,10 +5,11 @@ title: "Physical Layer"
 categories: 
     - Network
 tag: 
-    - OSI 7 Layer
-    - TCP/IP
-sidebar:
-    nav: "docs"
+    - 물리계층
+    - UTP, STP, 광케이블
+    - 허브(Hub)
+# sidebar:
+#     nav: "docs"
 ---
 
 # 물리계층(Physical Layer)

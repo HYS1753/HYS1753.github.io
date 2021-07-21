@@ -11,8 +11,8 @@ tag:
     - 회선제어
     - 흐름제어
     - 오류제어
-sidebar:
-    nav: "docs"
+# sidebar:
+#     nav: "docs"
 ---
 
 # 데이터링크 계층(DataLink Layer)
