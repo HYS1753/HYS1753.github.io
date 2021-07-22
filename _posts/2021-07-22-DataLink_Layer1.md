@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-22
+date: 2021-07-21
 title: "DataLink Layer 1"
 categories: 
     - Network
@@ -30,7 +30,7 @@ toc_sticky: true
 
 - 통신 단위 : 프레임(Frame)
 **이더넷 프레임의 구조**
-![이더넷 프레임 구조](/assets/images/2021-07-22/Ethernet_frame.PNG){: .align-center}
+![이더넷 프레임 구조](/assets/images/2021-07-21/Ethernet_frame.PNG){: .align-center}
 - 대표 장비 : 브리지, 스위치
 - MAC 주소 : 48bit(6Byte) 로 6자리 16진수로 표현한다. 앞의 3자리는 OUI(Organization Unique Identifier - 제조사 식별코드), 나머지 3자리는 제조사 내 일련번호
 
