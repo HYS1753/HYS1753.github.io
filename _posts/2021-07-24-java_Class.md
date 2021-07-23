@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-22
+date: 2021-07-24
 title: "Java Class정의 및 사용"
 categories: 
     - Java
