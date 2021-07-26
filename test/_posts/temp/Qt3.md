@@ -1,0 +1,126 @@
+---
+author_profile: true
+date: 2021-07-00
+title: "Qt 프로젝트 실행"
+categories: 
+    - Qt
+tag: 
+    - Qt Run
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# Qt 프로젝트 실행
+
+---
+
+Qt 프로젝트를 생성한 이후 간단하게 기본적으로 생성된 코드를 확인하며 어떻게 동작하는지 알아본다.
+
+## QTTest.pro
+```c
+QT       += core gui
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+CONFIG += c++11
+
+DEFINES += QT_DEPRECATED_WARNINGS
+
+SOURCES += \
+    main.cpp \
+    mainwindow.cpp
+
+HEADERS += \
+    mainwindow.h
+
+FORMS += \
+    mainwindow.ui
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target
+```
+
+- .pro 파일은 Qt 프로젝트에서 사용할 C++ 또는 Header 파일등을 관리한다.
+- Qt에서 제공하는 각종 라이브러리 추가 시 사용한다.
+
+
+## MainWindow.h
+```c
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QMainWindow>
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
+private:
+    Ui::MainWindow *ui;
+};
+#endif // MAINWINDOW_H
+```
+- 간단히 QMainWindow를 include하고 QMainWinodw 클래스를 상속받는 MainWindow 클래스가 생성된 것을 확인 할 수 있다.
+- QMainWindow 클래스는 사용자의 인터페이스를 구축하기 위한 프레임워크를 제공해주는 클래스 이다.
+- 보다 자세한 설명은 [QT Documentation](doc.qt.io)를 확인하면 된다.
+
+## main.cpp
+
+```c
+#include "mainwindow.h"
+
+#include <QApplication>
+
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
+}
+```
+- 실질적으로 프로그램에서 실행되는 Main 함수이며 MainWindow를 띄어주는 역할을 한다.
+- exec()는 이벤트 루프를 시작하는 함수로, 유저의 입력 즉 이벤트를 받을 수 있도록 하는 함수이다.
+
+
+## Mainwindow.cpp
+
+```c
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+```
+- 기본으로 작성된 코드이기 떄문에 간단하기 ui 파일을 설정해주고 종료 시 ui를 제거하는 기능만 작성되어 있다.
+
+## 실행
+
+- F5 또는 왼쪽 하단의 ▶(run) 버튼을 클릭하면 다음과 같은 아무것도 없는 창을 확인할 수 있다. 
+
+- 이로써 Qt의 기본 템플릿 생성 및 실행하는 방법까지 알아 보았다. 이제 여기서 차근차근 원하는 기능을 추가하며 윈도우 프로그램을 작성하면 된다.
+
+![실행](/assets/images/Qt15.png){: .align-center}

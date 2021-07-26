@@ -1,0 +1,39 @@
+---
+author_profile: true
+date: 2021-07-00
+title: "Qt 설치"
+categories: 
+    - Qt
+tag: 
+    - Qt installation
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+
+# Qt
+---
+
+QT프로그래밍은 GUI프로그램 개발에 널리 쓰이는 크로스 플랫폼 프레임워크이다.
+
+QT는 C++, Python, Luby, C 등의 여러 언어와도 연동이 되지만 이후 C++을 사용한 방법 기준으로 설명한다.
+
+
+## Qt 설치
+
+Qt 홈페이지 : [https://www.qt.io/](https://www.qt.io/)
+Qt 다운로드 : [https://www.qt.io/download](https://www.qt.io/download)
+
+1. 위의 다운로드 페이지에서 상업적 용도가 아닌 공부의 목적이기 때문에, Downloads for open source user를 선택하고 설치합니다. Go open Source를 선택하고 자신의 환경에 맞는 Qt 설치 파일을 다운로드 받습니다.
+![Qt1](/assets/images/Qt1.png){: .align-center}
+2. 차례대로 Next를 누르면서 설치 합니다. 중간에 아래와 같은 로그인 화면이 나오나 Skip 해도 설치가능하므로 확인 후 설치합니다.
+![Qt2](/assets/images/Qt2.png){: .align-center}
+3. 아래와 같은 화면에서 본 블로그에서는 C++을 사용할 것이기 때문에 MSVC2017을 선택하고 다음으로 넘어갑니다. 다른 버전이 필요할 경우 추가로 설치합니다.
+![Qt3](/assets/images/Qt3.png){: .align-center}
+![Qt4](/assets/images/Qt4.png){: .align-center}
+4. 이후 라이선스 동의 등의 과정을 거치고 Qt를 실행하면 다음과 같습니다.
+![Qt5](/assets/images/Qt5.png){: .align-center}

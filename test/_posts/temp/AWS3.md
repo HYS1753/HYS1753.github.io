@@ -1,0 +1,45 @@
+---
+author_profile: true
+date: 2021-07-00
+title: "AWS 프리티어 계정"
+categories: 
+    - AWS
+tag: 
+    - Free tier
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# 프리티어 계정 만들기
+
+---
+
+AWS는 기본적으로 유료 서비스입니다. 가입은 무료지만 서비스를 사용한 만큼에 대해 비용을 지불하게 됩니다.
+
+하지만, AWS는 처음 가입 시 프리티어로 다양한 기능을 1년동안 무료로 제공합니다.
+
+![AWS 프리터어 설명](/assets/images/AWS3.png){: .align-center}
+
+여기서 [AWS](https://aws.amazon.com/ko/)는 12개월 무료, 언제나 무료라고 설명하나 정해진 서비스만 무료고, 이 서비스들에 대해서도 사용량이 정해져 있어 사용 시 주의를 요합니다. 
+
+또한 가입시 사용가능한 신용카드를 등록하게 되는데 사용량이 넘으면 비용이 청구될 수 있습니다.
+
+[AWS 홈페이지](https://aws.amazon.com/ko/)에 방문하게 되면 아래와 같은 화면을 볼 수 있으며 우측 상단의 AWS 계정 생성 또는 로그인 버튼을 누릅니다.
+
+![AWS 홈페이지](/assets/images/AWS4.png){: .align-center}
+
+다음으로 다른 서비스 들과 같이 해당 정보를 입력하고 계정을 생성합니다.
+
+![AWS 계정 생성](/assets/images/AWS5.png){: .align-center}
+
+회원가입하는 과정 중에 개인 카드를 통해 인증을 받는 부분이 있는데 이는 신용카드 체크카드 상관없이 가능하며, 인증을 위해 1달러가 결제되지만 확인 후 환불 처리되어 걱정할 필요 없습니다.
+
+회원가입이 완료되면 12개월간 아래와 같은 서비스를 이용하실 수 있게 됩니다.
+
+![AWS Free Tier](/assets/images/AWS6.png){: .align-center}
+
+자세한 약관 및 사용가능 제품에 대한 정보는 [링크](https://aws.amazon.com/ko/free/)를 확인해 주시기 바랍니다.

@@ -1,0 +1,84 @@
+---
+author_profile: true
+date: 2021-07-00
+title: "Qt Push Button"
+categories: 
+    - Qt
+tag: 
+    - Push Buttom
+    - Line Edit 
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# Push Button을 사용해 Hello World 출력하기
+
+---
+
+예제를 통해 Push Button을 사용해본다.
+
+단순히 코드 몇줄로 바로 Hello World를 출력할 수 있지만. 윈도우 프로그래밍을 하면서 윈도우 창에서 아무작업 없이 출력만하는 것은 재미없으므로 Push Button을 누르면 LineEdit에 Hello World가 출력되도록 만들어 본다.
+
+**1. MainWindow.ui**
+- MainWindow.ui를 클릭하게 되면 다음과 같은 화면을 볼 수 있다.
+- 다음은 Design 탭으로 MFC, Android Studio와 유사하다.
+
+![MainWindow.ui](/assets/images/Qt16.png){: .align-center}
+
+
+**2. Object 끌어오기**
+- 다음으로 왼쪽의 다양한 Object들 중에서 빨간 박스한 Push Button과 LineEdit를 좌측에 윈도우에 드래그엔 드롭 한다.
+
+![Object 끌어오기](/assets/images/Qt17.png){: .align-center}
+
+**3. ObjectName**
+- Object를 끌어놨으면 확인해야할 중요한 부분은 Object의 이름(Object Name)이다.
+- ObjectName이 중요한 이유는 여기서 만든 Object들을 제어하는 MainWindow.cpp에서 이름을 통해 각각을 제어하기 때문이다.
+
+![ObjectName](/assets/images/Qt18.png){: .align-center}
+
+**4. Object 제어**
+- 만들었던 PushButton위에서 우클릭하고 Go to slot...을 클릭한다.
+![Go to slot...](/assets/images/Qt19.png){: .align-center}
+
+- 아래와 같은 화면에서 해당 Button이 수행할 event를 선택합니다. 
+![clicked()](/assets/images/Qt20.png){: .align-center}
+- 이번의 경우 버튼이 클릭되는 event가 발생하면 어떠한 동작을 수행하게 할 것이므로 QAbstractButton에 clicked()를 선택한다.
+
+
+**5. MainWindow.cpp**
+
+![MainWindow.cpp](/assets/images/Qt21.png){: .align-center}
+- clicked()를 선택하면 바로 ui를 설정한 MainWindow.cpp로 이동되며 on_pushButton_clicked()함수가 생성된 것을 확인할 수 있다.
+- 또한 MainWindow.h 파일에 가보면 private slots: 에도 동일하게 자동으로 생성되어 있는것을 확인할 수 있다.
+- 이 처럼 자동으로 코드를 생성하는 방법도 있지만 Qt의 중요한 기능 중 하나인 Signal, Slot을 통해서도 다음과 같이 동일하게 직접 구현할 수 도 있다.
+```c
+connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(on_pushButton_clicked()));
+```
+
+**6. LineEdit**
+
+```c
+void MainWindow::on_pushButton_clicked()
+{
+    ui->lineEdit->setText("Hello World!");
+}
+```
+
+- button이 클릭했을때 LineEdit에 내용이 출력되도록 하는 코드를 작성한다.
+- on_pushButton_clicked() 함수안에 위와 같이 입력한다.
+- 여기서 간단한 팁으로 ui 입력 후 .을 입력하면 사용할 수 있는 관련된 함수가 표시된다.
+    (만약 안 뜨거나 lineEdit가 없다고 오류가나는경우 Ctrl+s 로 저장하거나 한번 실행하면 정상적으로 출력된다.)
+- 따라서 관련되어 쓸수있는 함수들이 무엇이 있는지 한번 확인해보는 것도 좋을 것 같다. :)
+
+**7. 실행**
+
+
+- 다음과 같이 클릭 시 Hello World가 출력되는 것을 확인할 수 있다.
+
+
+![HelloWorld](/assets/images/Qt1.gif){: .align-center}

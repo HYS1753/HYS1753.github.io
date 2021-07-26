@@ -1,0 +1,179 @@
+---
+author_profile: true
+date: 2021-07-00
+title: "Qt QTreeWidget"
+categories: 
+    - Qt
+tag: 
+    - QTreeWidget
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# QTreeWidget 활용해 폴더에 있는 파일 확인하기
+
+---
+
+## QTreeWidget
+
+QTreeWidget는 Qt Document에 따르면 QListView클래스에서 사용하는 것과 유사한 항목 기반 인터페이스를 표준 트리 위젯에 제공하는 편의 클래스라고 정의 되어 있다.
+
+![QTreeWidget Example(Qt Document)](/assets/images/Qt26.png){: .align-center}
+
+즉, 위의 example과 같이 tree 형태의 Widget을 의미한다.
+
+```c
+QTreeWidget *treeWidget = new QTreeWidget();
+treeWidget->setColumnCount(1);
+QList<QTreeWidgetItem *> items;
+for (int i = 0; i < 10; ++i)
+    items.append(new QTreeWidgetItem((QTreeWidget*)0, QStringList(QString("item: %1").arg(i))));
+treeWidget->insertTopLevelItems(0, items);
+```
+또한, [Qt Document](doc.qt.io)에서는 위와 같은 형태로 구현할 수 있다고 적혀있다.
+
+따라서 위를 응용해서 특정 폴더에 존재하는 파일을 QTreeWidget으로 출력하는 방법을 알아본다.
+
+
+### MainWindow.h
+
+```c
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QMainWindow>
+#include <QDir>
+#include <QDirIterator>
+#include <QTreeWidgetItem>
+#include <QDateTime>
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
+private slots:
+
+    void on_treeWidget_itemSelectionChanged();
+
+private:
+    Ui::MainWindow *ui;
+};
+#endif // MAINWINDOW_H
+
+```
+
+### MainWindow.cpp
+
+```c
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+     ui->treeWidget->setHeaderLabels(QStringList() << tr("Name") << tr("Size(MB)") << tr("Time"));
+     ui->treeWidget->setAlternatingRowColors(true); // treewidget row별 색 설정
+     ui->treeWidget->setColumnWidth(0,125);
+     ui->treeWidget->setColumnWidth(1,125);
+     ui->treeWidget->setColumnWidth(2,125);
+     ui->treeWidget->setEnabled(true);           // treewidget 활성 비활성화 설정.
+
+     ui->treeWidget->clear();
+     QStringList filters;
+     filters += "*.*";   // 모든 파일 불러오기 또는 *.txt
+     QDirIterator Iterator("C:/Temp",filters, QDir::Files);  // QDir Iterator를 통해 C:/Temp 폴더에있는 파일들을 읽음
+     while(Iterator.hasNext()){
+         Iterator.next();
+         QTreeWidgetItem *item = new QTreeWidgetItem;
+         item->setText(0, Iterator.fileName());         // 파일 이름
+         item->setText(1, tr("%1 Mb").arg((double)Iterator.fileInfo().size()/1048576));     // 파일 사이즈 (Mb단위 출력)
+         item->setText(2, Iterator.fileInfo().lastModified().toString("yyyy/MMM/dd\thh:mm:ss"));   // 저장한 시간
+         item->setText(3, Iterator.filePath());
+         ui->treeWidget->addTopLevelItem(item);
+     }
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::on_treeWidget_itemSelectionChanged()
+{
+    ui->lineEdit->setText(ui->treeWidget->currentItem()->text(3));
+}
+```
+
+### 출력
+
+![실행결과](/assets/images/Qt2.gif){: .align-center}
+
+### 코드 살펴보기
+
+**1. QTreeWidget의 headerLabel을 정의**
+
+```c
+ui->treeWidget->setHeaderLabels(QStringList() << tr("Name") << tr("Size(MB)") << tr("Time"));
+```
+
+**2. QTreeWidget의 ui를 설정**
+
+```c
+ui->treeWidget->setAlternatingRowColors(true); // treewidget row별 색 설정
+ui->treeWidget->setColumnWidth(0,125);         // 각 column 별 크기 설정
+ui->treeWidget->setColumnWidth(1,125);
+ui->treeWidget->setColumnWidth(2,125);
+```
+
+**3. QTreeWidget을 활성 비활성화 할 수 있게 한다.(필요 시 사용)**
+
+```c
+ui->treeWidget->setEnabled(true);           // treewidget 활성 비활성화 설정.
+```
+
+**4. QTreeWidge 초기화**
+
+```c
+ui->treeWidget->clear();
+```
+
+**5. QTreeWidget에 넣을 item 정의 및 삽입**
+
+```c
+QStringList filters;
+     filters += "*.*";   // 모든 파일 불러오기 또는 *.txt
+     QDirIterator Iterator("C:/Temp",filters, QDir::Files);  // QDir Iterator를 통해 C:/Temp 폴더에있는 파일들을 읽음
+     while(Iterator.hasNext()){
+         Iterator.next();
+         QTreeWidgetItem *item = new QTreeWidgetItem;
+         item->setText(0, Iterator.fileName());         // 파일 이름
+         item->setText(1, tr("%1 Mb").arg((double)Iterator.fileInfo().size()/1048576));     // 파일 사이즈 (Mb단위 출력)
+         item->setText(2, Iterator.fileInfo().lastModified().toString("yyyy/MMM/dd\thh:mm:ss"));   // 저장한 시간
+         item->setText(3, Iterator.filePath());
+         ui->treeWidget->addTopLevelItem(item);
+     }
+```
+
+**6. QTreeWidget에서 선택하면 LineEdit에 경로 표시해 주기**
+
+```c
+void MainWindow::on_treeWidget_itemSelectionChanged()
+{
+    ui->lineEdit->setText(ui->treeWidget->currentItem()->text(3));
+}
+```
+- 경로가 아닌 다른 값을 출력하고 싶으면 text(3) 부분을 수정해 준다.

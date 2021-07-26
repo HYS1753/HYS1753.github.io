@@ -1,0 +1,125 @@
+---
+author_profile: true
+date: 2021-07-00
+title: "AWS Amazon Polly"
+categories: 
+    - AWS
+tag: 
+    - Polly
+    - TTS
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# Amazon Polly 구현
+
+---
+
+AWS에서는 다양한 인공지능 서비스를 제공하고 있습니다. 대표적으로 Amazon Polly, Amazon Lex, Amazon Rekognition 등이 있습니다.
+
+이번에는 AWS의 TTS(Text To Speech)서비스인 Polly를 사용해보겠습니다.
+
++ 이번 예제는 LightSail읕 통해 만들어진 WordPress위에서 진행합니다. 예제를 그대로 따라하실 분은 이전 포스트 LightSail을 먼저 봐주시기 바랍니다.
+​
+## 1. 정책 생성
+
+- Amazon Polly 기능을 사용하기 위해선 우선 Polly 서비스에 접속 할 수 있는 사용자를 설정해 주어 WordPress에 등록시켜주어야 합니다.
+![Polly 1](/assets/images/AWS33.png){: .align-center}
+
+- AWS의 root계정으로 로그인 후 IAM에 접속해 정책을 생성해 줍니다.
+![Polly 2](/assets/images/AWS34.png){: .align-center}
+![Polly 3](/assets/images/AWS35.png){: .align-center}
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Permissions1",
+            "Effect": "Allow",
+            "Action": [
+                "s3:HeadBucket",
+                "polly:SynthesizeSpeech",
+                "polly:DescribeVoices",
+                "translate:TranslateText"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "Permissions2",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetBucketAcl",
+                "s3:GetBucketPolicy",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:CreateBucket",
+                "s3:PutObjectAcl"
+            ],
+            "Resource": [
+                "arn:aws:s3:::audio_for_wordpress*",
+                "arn:aws:s3:::audio-for-wordpress*"
+            ]
+        }
+    ]
+}
+```
+
+- 정책은 Json 편집기에서 위와 같이 설정해 주시면 됩니다. 
+![Polly 4](/assets/images/AWS36.png){: .align-center}
+
+- 생성할 정책에 대해 검토를 진행하고 생성을 합니다. 다음으로 사용자를 만들어 보겠습니다.
+
+## 2. 사용자 생성
+
+![Polly 5](/assets/images/AWS37.png){: .align-center}
+
+- 사용자 생성 대시보드로 접속해 사용자 생성을 시작합니다.
+![Polly 6](/assets/images/AWS38.png){: .align-center}
+
+- 사용자 이름은 원하는 사용자의 이름을 입력하고, AWS의 엑세스 유형은 프로그래밍 방식 엑세스를 선택합니다. WordPress에서는 Access_Key, Secret_key 의 형태로 사용자에 접근하기 때문입니다.
+![Polly 7](/assets/images/AWS39.png){: .align-center}
+
+- 다음으로 기존 정책 직접 연결 탭을 통해, 생성할 사용자에 미리 만들어 두었던 Polly권한을 가진 정책을 연결 시켜 줍니다.
+
+- 다음 테그는 생략합니다.
+![Polly 8](/assets/images/AWS40.png){: .align-center}
+
+- 생성할 사용자의 정책 및 이름등을 확인해 검토후 사용자 만들기 버튼을 클릭합니다.
+![Polly 9](/assets/images/AWS41.png){: .align-center}
+
+- 사용자 생성이 완료되고 Access_Key와 Secret_Key가 생성이 됩니다.
+
+## 3. WordPress 설정하기
+
+WordPress의 관리자로 로그인해 plugins - AWS for WordPress를 활성화 시켜 줍니다.(Activated 클릭)
+
+![Polly 10](/assets/images/AWS42.png){: .align-center}
+
+- 활성화가 완료되면 관리자 페이지의 대시보드에 AWS가 추가된 것을 확인할 수 있습니다.
+
+- (또한, Polly뿐만 아니라 다른 서비스도 사용할 수 있는것을 확인 할 수 있습니다.)
+![Polly 11](/assets/images/AWS43.png){: .align-center}
+
+- 1번에서 생성한 사용자의 Access_Key와 Secret_Key를 AWS - General에 입력하고 AWS Resion은 Seoul을 선택후 Save Change를 통해 설정을 완료 합니다
+
+![Polly 12](/assets/images/AWS44.png){: .align-center}
+- 다음으로 Text-To-Speech 탭에서 언어를 한국어로 설정하고 Enable text-to-speech support를 통해 TTS 서비스를 활성화 시켜 줍니다.
+
+## 4. WordPress Post 생성하기
+
+![Polly 13](/assets/images/AWS45.png){: .align-center}
+- WordPress 관리자 대시보드에서 Posts를 클릭하고 Add New를 통해 포스트를 생성해 봅니다.
+
+
+![Polly 14](/assets/images/AWS46.png){: .align-center}
+- 위와같이 테스트로 Demo를 작성해 보았습니다. 하단의 Amazon Polly에서  TTS 설정을 허용 후 Publish를 통해 post를 발행해 봅니다.
+
+
+![Polly 15](/assets/images/AWS47.png){: .align-center}
+- 발행이 완료되면 위와같은 화면을 볼 수 있으며 재생 버튼을 클릭하면 Polly가 입력한 문장을 읽어주게 됩니다.
