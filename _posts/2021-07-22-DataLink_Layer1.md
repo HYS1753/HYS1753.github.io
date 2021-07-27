@@ -1,7 +1,7 @@
 ---
 author_profile: true
 date: 2021-07-21
-title: "DataLink Layer 1"
+title: "DataLink Layer 1 - 데이터링크 계층의 기능"
 categories: 
     - Network
 tag: 
