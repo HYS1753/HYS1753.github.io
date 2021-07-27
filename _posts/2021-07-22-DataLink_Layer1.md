@@ -11,6 +11,7 @@ tag:
     - 회선제어
     - 흐름제어
     - 오류제어
+    - ARP
 # 목차
 toc: true  
 toc_sticky: true 
@@ -20,11 +21,13 @@ toc_sticky: true
 
 # 데이터링크 계층(DataLink Layer)
 
+---
+
 물리계층에서 송수신 되는 데이터의 오류와 흐름을 관리해 안전한 데이터 전송을 돕는 계층
 
 같은 네트워크(Collision Domain)안에서 발생하는 오류복구, 흐름제어를 수행하며, Mac Address를 통한 통신이 가능하게 해준다.
 
-개의 부 계층으로 구성되어 있다.
+2 개의 부 계층으로 구성되어 있다.
     1. MAC(Media Access Control) : 물리적인 부분으로 매체간의 연결방식을 제어하고 1계층과 연결하는 역할
     2. LLC(Logical Link Control) : 논리적인 부분으로 Frame을 만들고 3계층과 연결
 
@@ -33,6 +36,7 @@ toc_sticky: true
 ![이더넷 프레임 구조](/assets/images/2021-07-21/Ethernet_frame.PNG){: .align-center}
 - 대표 장비 : 브리지, 스위치
 - MAC 주소 : 48bit(6Byte) 로 6자리 16진수로 표현한다. 앞의 3자리는 OUI(Organization Unique Identifier - 제조사 식별코드), 나머지 3자리는 제조사 내 일련번호
+- 주요 프로토콜 : ARP(IP to Mac), STP, VTP(Cisco 전용) 등
 
 ---
 
@@ -44,7 +48,7 @@ toc_sticky: true
     - 트레일러는 비트 에러를 감지한다.
 
 - **회선제어**
-    - 신호간의 충졸이 발생하지 않도록 제어하는 기능
+    - 신호간의 충돌이 발생하지 않도록 제어하는 기능
         - ENQ/ACK 방법(1:1)
         - Polling 방법(1:N) 
         Select(송신자가 나머지 수신자들을 선택) 모드
