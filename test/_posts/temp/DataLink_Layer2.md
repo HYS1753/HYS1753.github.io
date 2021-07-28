@@ -1,7 +1,7 @@
 ---
 author_profile: true
 date: 2021-07-00
-title: "DataLink Layer 2 - Bridge & Switch 기능"
+title: "DataLink Layer 2 - Bridge & Switch"
 categories: 
     - Network
 tag: 
