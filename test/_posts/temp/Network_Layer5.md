@@ -1,13 +1,14 @@
 ---
 author_profile: true
 date: 2021-07-00
-title: "Network Layer 3 - Routing Protocol 1"
+title: "Network Layer 5 - Routing Protocol"
 categories: 
     - Network
 tag: 
     - 네트워크 계층
     - Routing Protocol
     - Static Routing Protocol
+    - Dynamic Routing Protocol
 
 # 목차
 toc: true  

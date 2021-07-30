@@ -1,7 +1,7 @@
 ---
 author_profile: true
 date: 2021-07-00
-title: "Network Layer 3 - Router 구성(명령어)"
+title: "Network Layer 4 - Router 구성(명령어)"
 categories: 
     - Network
 tag: 
