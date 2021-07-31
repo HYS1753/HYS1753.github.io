@@ -22,6 +22,8 @@ toc_sticky: true
 
 ## RIP(Routing Infomation Protocol)
 
+---
+
 ### 특징
 
 - IGP(Interior Gateway Protocol)이자, Dynamic Routing Protocol 중 한가지 프로토콜
@@ -235,6 +237,45 @@ C    192.168.200.0/24 is directly connected, FastEthernet0/1
 **확인할 수 있는 정보**
 `I    192.168.100.0/24 [100/8576] via 192.168.150.1, 00:00:20, FastEthernet0/0` 으로 IGRP를 사용해 192.168.100.0 네트워크를 찾았고 
 192.168.150.1를 통해 갈 수 있다. 또한, 이 라우팅 정보의 Distance는 100, Matric 값은 8576아다.
+
+
+## BGP(Border Gateway Protocol)
+
+---
+
+### 특징
+- 현재 인터넷에서 쓰이는 가장 대표적인 EGP 라우팅 프로토콜
+- AS to AS(ISP(internet service provider) to ISP) 연결 간 사용
+- 경로 벡터 라우팅 프로토콜 사용(루핑 방지), 변경 또는 추가된 부분만 업데이트
+- 빠른 속도 보다는 조직 또는 단체 간 맺어진 정책에 의거하여 안정성에 따른 최적경로 결정
+
+## 구성
+1. eBGP : 서로다른 AS 간의 연결 및 라우팅 정보 교환 – external
+2. iBGP : 동일 AS 내에서 BGP 라우팅 정보 교환 – internal
+
+## BGP 구성방법
+
+```
+Router ID : 라우터 식별용 IP 설정
+Neighbor : OSPF처럼 자동으로 탐지가 불가능해 직접 인접 라우터의 AS 번호를 설정해 준다.(Connected 인터페이스로 Next hop 설정)
+Network : BGP에 참여하는 Network 
+```
+
+### BGP 메시지 
+- OPEN : 인접 라우터와 연결된 후 보내는 메시지(BGP 버전, AS 번호, Hold Time, Operation parameter)
+- UPDATE : 경로에 대한 속성 값(Unreachable Route, Path Attribute, Network Layer Rechablility)
+- NOTIFICATION : 에러가 감지되면 에러코드를 보내고 BGP 연결 종료
+- KEEPALIVE : 주기적으로 인접 라우터와의 연결을 확인
+
+### BGP State Machine
+피어 라우터와 동작을 결정하기 위해 6가지의 상태 머신을 사용한다.
+1. Idle : 모든 자원을 초기화 하고 피어 연결 준비 상태
+2. Connect : 연결이 완료되기를 기다리는 상태
+3. Active : 연결 실패 이후 다시 연결을 시도하는 상태
+4. Open Sent : Open 메시지를 보내는 상태
+5. Open Confirm : Open 메시지를 받은 상태
+6. Established : KEEPALIVE 메시지를 받은 상태
+
 ## Disatance Vector 방식의 문제점
 
 ---

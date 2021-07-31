@@ -22,6 +22,8 @@ toc_sticky: true
 
 ## OSPF(Open Shortest Path First)
 
+---
+
 ### 특징
 
 - `Convergence Time(모든 라우터가 변경된 라우팅 정보를 주고 받는데 걸리는 시간)`이 Distance-Vector 방식보다 빠르다. 이는 OSPF가 `Area`라는 개념을 통해 OSPF 네트워크를 작은 영역으로 나눠 관리하기 때문이다.
@@ -120,3 +122,34 @@ OSPF에 참여하는 각 라우터는 자신의 Link State 정보를 DR과 BDR�
     - 즉, LSA를 실어 나르는 패킷
 **5. LSAck(Link State Acknowledgement Packet)**
     - DDP, LSR, LSU 등의 메시지 수신 확인, 신뢰성 확보 
+
+## OSPF 구성
+
+```
+router ospf process-id      // ospf enable
+network address wildcard-mask area area-id      // ospf에 운용할 네트워크 정의
+```
+
+- `router ospf process-id`
+    - process-id : 한 라우터에서 여러개의 ospf를 돌릴 때 구별하는 id, 같은 ospf끼리 꼭 같을 필요는 없으나 일치 시키는게 좋음
+    - Ex. router ospf 100
+- `network address wildcard-mask area area-id `
+    - address : network ip 주소
+    - wildcard-mask : 서브넷 마스크와 같은것이지만 반대로 
+        - 서브넷마스크 255.255.0.0 → 와일드카드 마스크 0.0.255.255
+    - area : 확장성 있는 라우팅을 위해 ospf의 영역을 나누는 것.
+    - area-id : 같은 area에 들어갈 osfp 참여 라우터는 같은 id를 가짐
+    - Ex. network 150.100.150.0 0.0.0.255 area 0
+
+```
+show ip protocols       // 현재 라우터에서 사용하고 있는 라우팅 프로토콜 확인
+show ip route           // 현재 라우터의 라우팅 테이블 확인
+show ospf interface     // OSPF의 인터페이스 확인
+show ip ospf neighbor   // OSPF로 구성한 라우팅 프로토콜의 주변 neighbor 확인 
+```
+
+## OSPF의 링크 종류
+1. Point to Point : 라우터와 라우터가 1:1로 연결. 이 경우 DR, BDR 안정함
+2. Trasient : 여러개의 라우터가 동일한 Area 내에서 Bus를 통해서 연결
+3. Stub : 하나의 Area에 1개의 라우터만 연결
+4. Virtual : 물리적으로 백본영역과 연결이 어려운 상태에서 가상으로 연결
