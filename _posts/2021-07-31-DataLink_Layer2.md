@@ -49,6 +49,7 @@ toc_sticky: true
     - Default 300초(5분)
 
 - 정리
+
     |상태|기능|
     |-|-|
     |프레임 유입|1. 신규 : 출발지 주소 저장(Learning)|
