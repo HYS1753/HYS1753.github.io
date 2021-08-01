@@ -66,7 +66,7 @@ toc_sticky: true
 
 - 추가
     - Collision Domain 과 Broadcast Domain 과의 차이점 
-    ![Collision, Broadcast Domin](/assets/images/2021-08-01/CollisionBroadcastDomain.png){: .align-center}
+    ![Collision, Broadcast Domin](/assets/images/2021-08-01/CollisionBroadcastDomain.PNG){: .align-center}
     
     - Root Port(루트포트) : 루트 브리지에 가장 빨리 갈 수 있는 포트
     - Segment(세그먼트) : 브리지 또는 스위치 간에 서로 연결된 링크
