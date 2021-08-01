@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-00
+date: 2021-08-02
 title: "DataLink Layer 4 - Switch 명령어 실습"
 categories: 
     - Network
@@ -58,19 +58,19 @@ toc_sticky: true
 ```
 Switch> enable
 ```
-![enable](/assets/images/Net_enable.png){: .align-center}
+![enable](/assets/images/2021-08-02/Net_enable.PNG){: .align-center}
 
 ### Privileged Mode에서 Config Mode로 변환
 ```
 Switch# config terminal
 ```
-![config termianl](/assets/images/Net_config_terminal.png){: .align-center}
+![config termianl](/assets/images/2021-08-02/Net_config_terminal.PNG){: .align-center}
 
 ### 스위치 구성, 각 포트들의 현재 상황 확인
 ```
 Switch #show interface status
 ```
-![interface_status](/assets/images/Net_show_interface_status.png){: .align-center}
+![interface_status](/assets/images/2021-08-02/Net_show_interface_status.PNG){: .align-center}
 
 - Status
     - 각 포트의 연결 상태 
@@ -103,7 +103,7 @@ Switch #
 Switch # show interface vlan 1
 ```
 
-![Switch_IP](/assets/images/Net_switch_ip.png){: .align-center}
+![Switch_IP](/assets/images/2021-08-02/Net_switch_ip.PNG){: .align-center}
 
 - `interface vlan 1` 명령을 통해 구성모드에서 vlan 인터페이스 모드로 들어간다.
 - `ip address 192.168.100.1 255.255.255.0` 명령을 통해 ip 주소를 192.168.100.1로 세팅하고 서브넷 마스크는 255.255.255.0로 세팅한다. 
@@ -126,7 +126,7 @@ Switch(config) # exit
 Switch # show interface fastethernet 0/1
 ```
 
-![Speed, Duplex](/assets/images/Net_switch_speed_duplex.png){: .align-center}
+![Speed, Duplex](/assets/images/2021-08-02/Net_switch_speed_duplex.PNG){: .align-center}
 
 ### Switch MAC Address Table 확인하기
 
@@ -142,7 +142,7 @@ Switch # show interface fastethernet 0/1
 ```
 Switch # show mac-address-table
 ```
-![mac address table](/assets/images/Net_mac_address_table.png){: .align-center}
+![mac address table](/assets/images/2021-08-02/Net_mac_address_table.PNG){: .align-center}
 
 - Permanent 방식으로 수동으로 MAC Address Table에 추가
     - 일반 config 모드에서 수행된다.
@@ -153,5 +153,5 @@ Switch # show mac-address-table
     ```
     - 결과
 
-    ![mac address static](/assets/images/Net_mac_address_static.png){: .align-center}
+    ![mac address static](/assets/images/2021-08-02/Net_mac_address_static.PNG){: .align-center}
 
