@@ -1,7 +1,7 @@
 ---
 author_profile: true
-date: 2021-07-00
-title: "DataLink Layer 5 - VLAN 명령어 실습"
+date: 2021-08-04
+title: "DataLink Layer 6 - VLAN 명령어 실습"
 categories: 
     - Network
 tag: 
@@ -16,7 +16,7 @@ toc_sticky: true
 #     nav: "docs"
 ---
 
-# VLAN(Virtual LAN) 먕량아
+# VLAN(Virtual LAN) 명령어
 
 ---
 
