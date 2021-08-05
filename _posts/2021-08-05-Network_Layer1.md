@@ -65,18 +65,21 @@ IP(Internet Protocol)주소를 사용하여 통신하는 계층적인 구조를 
 - 통신 단위 : 패킷(Packet)
 
 **IPv4 헤더의 구조**
+
 ![IPv4 헤더 구조](/assets/images/2021-08-05/NET_IPv4.PNG){: .align-center}
-    - Version : IP 버전, IPv4
-	- Header Length(HLEN) : 헤더의길이, 4바이트(위 그림의 한줄) 단위 최소 5(20바이트) ~ 15(60바이트)
-	- Type of Service : 서비스 품질
-	- Total Packet Length :　IP 패킷 전체의 길이 바이트 단위 최대 65,535
-	- Identifier, Flags, Offset : IP Fragment 필드로 단편화와 재조합, 큰패킷이 작은 패킷으로 전송되는 경우
-	- Time to live : IP 패킷의 수명
-	- Protocol ID : 데이터에 포함되어 있는 상위계층의 프로토콜 정보, TCP 6, UDP 17
-	- Header Checksum : 오류검출
-	- Source IP Address, Destination IP Address : 출발지와 목적지의 IP 주소
-	- IP Header Options & Padding: 옵션, 거의 사용되지 않음 시험/디버깅 용도, 통신에는 미관여
-- 대표 장비 : 라우터
+
+- Version : IP 버전, IPv4
+- Header Length(HLEN) : 헤더의길이, 4바이트(위 그림의 한줄) 단위 최소 5(20바이트) ~ 15(60바이트)
+- Type of Service : 서비스 품질
+- Total Packet Length :　IP 패킷 전체의 길이 바이트 단위 최대 65,535
+- Identifier, Flags, Offset : IP Fragment 필드로 단편화와 재조합, 큰패킷이 작은 패킷으로 전송되는 경우
+- Time to live : IP 패킷의 수명
+- Protocol ID : 데이터에 포함되어 있는 상위계층의 프로토콜 정보, TCP 6, UDP 17
+- Header Checksum : 오류검출
+- Source IP Address, Destination IP Address : 출발지와 목적지의 IP 주소
+- IP Header Options & Padding: 옵션, 거의 사용되지 않음 시험/디버깅 용도, 통신에는 미관여
+
+**대표 장비 : 라우터**
 
 
 ## IP 주소
@@ -95,6 +98,7 @@ IP 주소는 Network Part(네트워크 부분)과 Host Part(호스트 부분)으
 
 - IP 주소의 Class
     - A, B, C, D, E로 구성되어 있으며 이를 토앻 어디까지가 네트워크 부분이고 어디까지가 호스트 부분인지 알 수 있다.
+    
     ![IP Class](/assets/images/2021-08-05/NET_IP_Class.PNG){: .align-center}
     
         |Class A|1|7|24|
