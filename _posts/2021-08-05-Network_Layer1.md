@@ -66,7 +66,7 @@ IP(Internet Protocol)주소를 사용하여 통신하는 계층적인 구조를 
 
 **IPv4 헤더의 구조**
 
-![IPv4 헤더 구조](/assets/images/2021-08-05/NET_IPv4.PNG){: .align-center}
+![IPv4 헤더 구조](/assets/images/2021-08-05/Net_IPv4.PNG)
 
 - Version : IP 버전, IPv4
 - Header Length(HLEN) : 헤더의길이, 4바이트(위 그림의 한줄) 단위 최소 5(20바이트) ~ 15(60바이트)
@@ -98,21 +98,21 @@ IP 주소는 Network Part(네트워크 부분)과 Host Part(호스트 부분)으
 
 - IP 주소의 Class
     - A, B, C, D, E로 구성되어 있으며 이를 토앻 어디까지가 네트워크 부분이고 어디까지가 호스트 부분인지 알 수 있다.
+
+    ![IP Class](/assets/images/2021-08-05/Net_IP_Class.PNG)
     
-    ![IP Class](/assets/images/2021-08-05/NET_IP_Class.PNG){: .align-center}
-    
-        |Class A|1|7|24|
-        |-|-|-|-|
-        ||0|Network #|Host #|
+    |Class A|1|7|24|
+    |-|-|-|-|
+    ||0|Network #|Host #|
 
-        |Class B|1|1|14|16|
-        |-|-|-|-|-|
-        ||1|0|Network #|Host #|
+    |Class B|1|1|14|16|
+    |-|-|-|-|-|
+    ||1|0|Network #|Host #|
 
 
-        |Class C|1|1|1|21|8|
-        |-|-|-|-|-|-|
-        ||1|1|0|Network #|Host #|
+    |Class C|1|1|1|21|8|
+    |-|-|-|-|-|-|
+    ||1|1|0|Network #|Host #|
     
     - Class A : 네트워크 번호가 1 ~ 126으로 시작하고, 한 네트워크 내에 들어갈 수 있는 호스트 수는 16,777214
     - Class B : 네트워크 번호가 128.1 ~ 191.255으로 시작하고, 한 네트워크 내에 들어갈 수 있는 호스트 수는 65,534
