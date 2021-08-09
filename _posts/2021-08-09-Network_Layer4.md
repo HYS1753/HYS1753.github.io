@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-00
+date: 2021-08-09
 title: "Network Layer 4 - Router 구성(명령어)"
 categories: 
     - Network
