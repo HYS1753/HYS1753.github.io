@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-00
+date: 2021-08-10
 title: "Network Layer 5 - Routing Protocol"
 categories: 
     - Network
@@ -62,7 +62,7 @@ Router(config) # ip route network 150.150.0.0 255.255.0.0 203.210.100.1
 
 ## Distance-Vector 알고리즘과 Link-State 알고리즘
 
-![Routing Protocol](/assets/images/Net_Routing_Protocol.png){: .align-center}
+![Routing Protocol](/assets/images/2021-08-10/Net_Routing_Protocol.PNG){: .align-center}
 
 ### Distanc Vector Algorithm
 - 이름 그래도 인근 라우터의 거리와 방향을 위주로 만들어진 라우팅 프로토콜
