@@ -1,0 +1,113 @@
+---
+author_profile: true
+date: 2021-07-00
+title: "Python Pandas 라이브러리 1 (데이터 구성)"
+categories: 
+    - Python
+tag: 
+    - Pandas
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# Pandas(데이터 준비)
+
+---
+
+## Pandas 라이브러리 import
+
+```python
+import pandas as pd
+```
+
+## Pandas 라이브러리를 사용해 파일 읽기, 쓰기
+
+```python
+file_path = "C:/data/,,,"
+
+dataframe = pd.read_csv(file_path, encoding="CP949")
+dataframe = pd.read_excel(file_path)
+dataframe = pd.read_json(file_path)
+
+dataframe
+```
+
+```python
+file_path = "C:/data/..."
+
+dataframe.to_csv(file_path)
+dataframe.to_excel(file_path)
+dataframe.to_json(file_path)
+```
+
+## Series Data 구성
+
+```python
+# Series 데이터 출력
+sd1 = pd.Series(['Dog','Cat','Tiger','Lion','Monkey'],index=['0','1','2','3','4'])
+# dict로 시리즈 생성
+dict_data = {'a':1,'b':2,'c':3}
+sd2 = pd.Series(dict_data)
+# List로 시리즈 생성
+list_data = pd.Series(['Dog','Cat','Tiger','Lion','Monkey'],index=['0','1','2','3','4'])
+sd3 = pd.Series(list_data)
+# Tuple로 시리즈 생성
+tup_data = ('이순신','1991-03-15','남')
+sd4 = pd.Series(tup_data, index = ['이름', '생년월일','성별'])
+```
+
+출력
+
+```
+sd1
+0       Dog
+1       Cat
+2     Tiger
+3      Lion
+4    Monkey
+dtype: object
+
+sd2
+a    1
+b    2
+c    3
+dtype: int64
+
+sd3
+0       Dog
+1       Cat
+2     Tiger
+3      Lion
+4    Monkey
+dtype: object
+
+sd4
+이름             이순신
+생년월일    1991-03-15
+성별               남
+dtype: object
+```
+
+## DataFrame 구성
+
+```python
+dict_data1 = {'동물':['Dog','Cat','Tiger','Lion','Monkey'],'나이':[7,9,2,3,1]}
+df1 = pd.DataFrame(dict_data1)
+```
+
+출력
+
+```
+       동물  나이
+0     Dog   7
+1     Cat   9
+2   Tiger   2
+3    Lion   3
+4  Monkey   1
+```
+
+

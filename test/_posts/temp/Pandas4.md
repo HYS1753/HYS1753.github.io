@@ -1,0 +1,99 @@
+---
+author_profile: true
+date: 2021-07-00
+title: "Python Pandas 라이브러리 4 (데이터 클린징)"
+categories: 
+    - Python
+tag: 
+    - Pandas
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# Pandas(데이터 클린징)
+
+---
+
+## 결측 데이터
+
+### 결측 데이터 확인
+
+```python
+# 결측 데이터 확인
+df.isnull()
+df.notnull()
+# 결측치 개수 확인
+df.isnull().sum()   # 컬럼 별 결측값 개수 구하기
+df.isnull().sum(1)  # 행 단위 결측값 개수 구하기
+df.notnull().sum(1) # 행 단위 실제값 개수 구하기
+```
+
+### 결측치 제거
+
+```python
+# 행 삭제
+df = df.dropna(axis=0)
+# 열 삭제
+df = df.dropna(axis=1)
+# 특정 행 또는 열 결측치 제거
+df['tip'].dropna()
+```
+
+### 결측치 대체 
+
+```python
+# 결측값을 특정 값으로 채우기
+df = df.fillna(0)
+# 결측값을 특정 문자열로 채우기
+df = df.fillna("0")
+# 결측값을 변수별 평균으로 대체
+df = df.fillna(df.mean())
+
+# 특정 항복의 평균 구하기
+df.mean()['tip']
+```
+
+## 이상 데이터
+
+특정 범주 이외의 값들을 제거
+
+```python
+# boxplot으로 이상치 확인
+plt.boxplot(df['tip'])
+plt.show()
+df = df.drop(0, 0)
+```
+
+## 중복데이터
+
+### 중복 데이터 확인
+
+```python
+# duplicated() 메소드로 중복 데이터 찾기
+# dataFrame.duplicated()는 True, False의 boolean 형태의 Series 반환
+df.duplicated(['tip'])
+
+# keep = 'first'가 default이며, 중복값이 있으면 첫번째 값을 duplicated
+# 여부를 False로 반환 나머지 중복값에 대해서는 True 반환
+df.duplicated(['tip'], keep = 'first')# 기본값
+
+# keep = 'last'는 중복값이 있으면 첫번째 값을 duplicated 여부를 
+# True로 반환 나머지 중복값에 대해서는 False 반환
+df.duplicated(['tips'], keep = 'last')
+
+# keep = False는 처음이나 끝값인지 여부는 고려를 안하고 중복이면 무조건 True 반환
+df.duplicated(['tips'], keep = False)
+```
+
+### 중복 데이터 제거
+
+```python
+# drop_duplicates()는 중복값을 keep='first', 'last', False argument에 따라
+# 유일한 1개의 key값만 남기고 나머지는 중복 제거
+df.drop_duplicates(['tips'], keep = 'first')
+df.drop_duplicates(['tips'], keep = 'last')
+df.drop_duplicates(['tips'], keep = False)
