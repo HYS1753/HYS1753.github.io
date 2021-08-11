@@ -49,6 +49,7 @@ Router(config) # no router rip      // RIP 라우팅 명령 취소
 #### 다음과 같은 구성으로 RIP를 설정하는 방법
 
 ![RIP](/assets/images/2021-08-11/NET_RIP.PNG){: .align-center}
+
 - 명령어
 
 ```
@@ -145,8 +146,8 @@ C    192.168.150.0/24 is directly connected, FastEthernet0/0
 C    192.168.200.0/24 is directly connected, FastEthernet0/1
 ```
 
-**R    192.168.100.0/24 [120/1] via 192.168.150.1, 00:00:20, FastEthernet0/0**
-R은 RIP를 통해 찾아낸 경로를 의미(C는 직접 연결됨), 뒤의 IP 주소는 발견한 목적지 의미, [120/1]은 RIP의 Distance 값과, Hop count 의미, 
+`R    192.168.100.0/24 [120/1] via 192.168.150.1, 00:00:20, FastEthernet0/0` R은 RIP를 통해 찾아낸 경로를 의미(C는 직접 연결됨), 뒤의 IP 주소는 발견한 목적지 의미, [120/1]은 RIP의 Distance 값과, Hop count 의미, 
+
 
 ## IGRP(Interior Gateway Routing Protocol)
 
