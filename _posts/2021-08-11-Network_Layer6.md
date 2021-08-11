@@ -48,7 +48,7 @@ Router(config) # no router rip      // RIP 라우팅 명령 취소
 
 #### 다음과 같은 구성으로 RIP를 설정하는 방법
 
-![RIP](/assets/images/2021-08-11/NET_RIP.PNG){: .align-center}
+![RIP](/assets/images/2021-08-11/Net_RIP.PNG){: .align-center}
 
 - 명령어
 
