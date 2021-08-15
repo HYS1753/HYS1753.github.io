@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-00
+date: 2021-08-15
 title: "Network Layer 7 - Routing Protocol(Link-State)"
 categories: 
     - Network
