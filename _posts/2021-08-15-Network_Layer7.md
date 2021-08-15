@@ -111,17 +111,22 @@ OSPF에 참여하는 각 라우터는 자신의 Link State 정보를 DR과 BDR�
 ### OSPF Message 종류
 
 **1. Hello Packet**
-    - 인접 라우터 및 로컬 링크 상태 검색, 관계를 설정하고 주요 매개변수 전달한다.
-    - 일정 간격으로 인접 라우터 들의 상태(Keepalive) 확인
+- 인접 라우터 및 로컬 링크 상태 검색, 관계를 설정하고 주요 매개변수 전달한다.
+- 일정 간격으로 인접 라우터 들의 상태(Keepalive) 확인
+
 **2. DBD/DDP(Database Description Packet)**
-    - OSPF 정보 구축을 위해 자신의 LSDB에 있는 LSA를 요약한 정보를 알려주는 패킷.
+- OSPF 정보 구축을 위해 자신의 LSDB에 있는 LSA를 요약한 정보를 알려주는 패킷.
+
 **3. LSR(Link State Request Packet)**
-    - 상대 라우터로 부터 DBD를 수신 받고 자신에게 없는 LSA 정보가 있으면 이를 정보를 요청할 떄 사용되는 패킷.
+- 상대 라우터로 부터 DBD를 수신 받고 자신에게 없는 LSA 정보가 있으면 이를 정보를 요청할 떄 사용되는 패킷.
+
 **4. LSU(Link State Update Packet)**
-    - 네트워크 변화 발생하거나 LSR을 수신받았을 때 인접 라우터에게 해당 라우팅 정보를 전송할 때 사용하는 패킷
-    - 즉, LSA를 실어 나르는 패킷
+- 네트워크 변화 발생하거나 LSR을 수신받았을 때 인접 라우터에게 해당 라우팅 정보를 전송할 때 사용하는 패킷
+- 즉, LSA를 실어 나르는 패킷
+
 **5. LSAck(Link State Acknowledgement Packet)**
-    - DDP, LSR, LSU 등의 메시지 수신 확인, 신뢰성 확보 
+- DDP, LSR, LSU 등의 메시지 수신 확인, 신뢰성 확보 
+
 
 ## OSPF 구성
 
