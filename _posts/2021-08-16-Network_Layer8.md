@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-00
+date: 2021-08-16
 title: "Network Layer 8 - Access List"
 categories: 
     - Network
