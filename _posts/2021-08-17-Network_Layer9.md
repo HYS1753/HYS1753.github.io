@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-00
+date: 2021-08-17
 title: "Network Layer 9 - 기타 프로토콜"
 categories: 
     - Network

@@ -69,8 +69,8 @@ Router(config) # access-list access-list-number {permit|deny} {source [source-wi
 ```
 
 - access-list-number : 1~99 까지의 숫자 입력가능, 각 종류에 따라 정해져 있음
-- {permit|deny} : 해당 조건일 경우 permit 할지 deny 할지 결정
-- {source [source-wildcard]|any} : 출발지 주소와 와잍드카드 마스크를 입력하거나 모든 주소를 할당할 때는 any 설정
+- `{permit|deny}` : 해당 조건일 경우 permit 할지 deny 할지 결정
+- `{source [source-wildcard]|any}` : 출발지 주소와 와잍드카드 마스크를 입력하거나 모든 주소를 할당할 때는 any 설정
 - ex. `access-list 2 deny 210.100.150.1`
 - ex. `access-list 2 permit 210.100.150.0 0.0.0.255`
 
