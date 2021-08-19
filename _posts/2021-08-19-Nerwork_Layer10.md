@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-07-00
+date: 2021-08-19
 title: "Network Layer 10 - IPv6"
 categories: 
     - Network
