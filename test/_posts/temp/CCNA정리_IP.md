@@ -1,0 +1,75 @@
+---
+author_profile: true
+date: 2021-07-00
+title: "CCNA 정리 3 - IPv4 & IPv6"
+categories: 
+    - CCNA
+tag: 
+    - IPv6 주소 종류
+    - IPv6 의 Anycast
+    - IPv4의 Private range(사설망)
+    - VRRP
+    - IPv6 주소 할당
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# IPv4 & IPv6
+---
+
+## IPv6 주소 종류
+
+```
+Loop Back addr		::/1
+Static Default addr	::/0
+Link Local addr		FE80::/10
+Site Local addr 	FEC0::/10
+Unique Local addr	FC00::/7
+Global addr		2000::/3
+Multicast addr		FF00::/3
+```
+
+## IPv6 의 Anycast
+
+- 글로벌 주소를 사용한다. 
+- 유니케스트와 달리 둘 이상의 인터페이스에 할당 가능
+- 가장 가까운 인터페이스로 전송
+- 연속 전달 방식 ( 0 – 0 – 0)
+
+## IPv4의 Private range(사설망)
+
+Class A : 10.0.0.0 – 10.255.255.255
+Class B : 172.16.0.0 – 172.31.255.255
+Class C : 192.168.0.0 – 192.168.255.255
+
+
+## VRRP Virtual Mac Address 
+
+0000.5E00.01XX.XXXX
+
+
+## IPv6 주소 할당
+
+- 정적 주소 할당
+- 동적 주소 할당
+    - DHCPv6(상태저장) 
+        - Dynamic Host Configuration Protocol version 6
+        - 서버에서 테이블을 관리하며 IPv6주소 할당(Stateful)
+
+    - SLAAC(상태 비저장)
+        - StateLess Address Auto-Configuration
+        - 특정 서버가 IP를 관리 하지 않고 라우터에서 제공되는 네트워크 프리픽스(64bit)와 EUI-64(IEEE-defined 64bit Extended Unique Identifier) 기반의 인터페이스 식별자 64bit를 합해 128bit의 IPv6 주소를 생성한다.(Stateless)
+    
+    - EUI-64 구성 방법
+	
+    1. 48bit의 MAC 주소를 두 부분(OUI, NIC)으로 나눔
+	    ![MAC](/assets/images/OUI_NIC.PNG)
+	2. 나뉘어진 두 부분 사이에 FFFE 추가.
+        ![MAC](/assets/images/OUI_NIC_FFFE.PNG)
+	3. 7번째 비트(OUI 첫 번째 칸 7번째 bit)숫자 변경	  
+        - 0 = globally unique 
+        - 1 = local administered
