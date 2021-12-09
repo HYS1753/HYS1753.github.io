@@ -103,23 +103,30 @@ Server Only 모드로 만들기 위해선 Master로 설정함.
 순차적으로 실행되는 SSH를 통해 노드에 Push함
 TCP 사용, 클라이언트 온리
 - Puppet : Ruby 기반의 오픈소스 도구, 서버 클라이언트
-- SaltStack : Python 기반, 클라이언트 온리
 - Chef : 서버 클라이언트
 
-##추가적인 약어
+## 추가적인 약어
 
 **VSAT(Very Small Aperture terminal)**
-	소형 안테나 지구 쪽, 대역폭 낮다
+- 소형 안테나 지구 쪽, 대역폭 낮다
+
 **ISDN(Integrated Service Digital Network)**
-	여러 음성, 문자, 화상 등의 통신서비스를 하나의 디지털 통신망으로 종합해 제공하도록 통합한 것 , 대역폭 낮다
+- 여러 음성, 문자, 화상 등의 통신서비스를 하나의 디지털 통신망으로 종합해 제공하도록 통합한 것 , 대역폭 낮다
+  
 **WSA(Web security Application)**
-	Proxy Caching 성능 향상
+- Proxy Caching 성능 향상
+- 
 **ASA(Adaptive Security Applicaion)**
+
 **ISATAP(Infra-Site Tunnel Addressing Protocol)**
-	IPv4 네트워크에서 IPv6 패킷을 전송하기 위한 것
+- IPv4 네트워크에서 IPv6 패킷을 전송하기 위한 것
+
 **GRE(Generic Routing Encapsulation)**
-	Cisco에서 개발한 터널링 프로토콜으로 새로운 IP 헤더를 Encapsulation해서 패킷을 전송하는 VPN 기능을 제공한다.
+- Cisco에서 개발한 터널링 프로토콜으로 새로운 IP 헤더를 Encapsulation해서 패킷을 전송하는 VPN 기능을 제공한다.
+
 **IPSec(Internet Portocol Security)**
+
 **IP SLA(Service level agreement)**
-	스위치 라우터 간 성능 품질 측정
+- 스위치 라우터 간 성능 품질 측정
+  
 **SOHO(Small Office Home Office)**
