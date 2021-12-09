@@ -1,0 +1,166 @@
+---
+author_profile: true
+date: 2021-08-20
+title: "Docker 3 이미지 사용"
+categories: 
+    - Docker
+tag: 
+    - Docker
+    - DB
+    - Python
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# Docker 이미지 사용
+
+---
+
+## 1. 이미지 생성
+
+앞서서 설명한 것 처럼 docker search를 사용해 검색한 이미지를 pull 명령어로 내려 받아 사용할 수 있지만 도커로 개발하는 많은 경우에는 컨테이너에 어플리케이션을 위한 특정 개발 환경을 직접 구축한뒤 사용자만의 이미지를 직접 생성해야 한다.
+
+1. 다음 명령어로 이미지로 만들 컨테이너를 생성한다.
+   ``` 
+   # docker run -i -t 0 --name commit_test ububtu:14.04
+   root@2039482304: /# echo test_first! >> first
+   ```
+2. 파일을 만든 후 호스트로 빠저 나와 docker commit 명령어를 입력해 컨테이너를 이미지로 만든다. 
+   ``` 
+   docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+   ```
+   
+   ```
+   docker commit -a "alicek106" -m "my fisrt commit" commit_test commit_test:first
+   ```
+   - 위의 명령어는 commmit_test라는 컨테이너를 commit_test:first 라는 이름의 이미지로 생성한다. 
+   - -a : author 이미지 작성자를 나타내는 것. 
+   - -m : commit 메시지 
+
+---
+
+## 2. 이미지 추출
+
+도커 이미지 추출
+
+도커 이미지를 별도로 저장하거나 옮기는 등 필요에 따라 이미지를 단일 바이너리 파일로 저장해야 할 때도 있따. 
+docker save 명령어를 사용하면 컨테이너의 커맨드 이미지 이름과 태그등 이미지으 ㅣ모든 메타 데이터를 포함해 하나의 파일로 추출할 수 있따. -o 옵션으로 추출된 파일명을 입력한다.
+
+```
+docker save -o ubuntu_14.04.tar ubuntu:14.04
+```
+
+추출된 이미지는 load 명령어로 도커에 다시 로드할 수 있다.
+
+```
+docker load -i ubuntu_14.04.tar
+```
+
+## 3. Dockerfile
+
+이미지를 생성하는 방법
+
+개발한 어플리케이션을 컨테이너화 할때 가장 먼저 생각나는 방법은 다음과 같다.
+1. 아무것도 존재하지 않는 이미지(우분투, centos)로 컨테이너 생성
+2. 어플리케이션을 위한 환경을 설치하고 소스코드 등을 복사해 잘 동작 하는지 확인
+3. 컨테이너를 이미지로 커밋
+
+이 방법을 사용하면 어플리케이션으 동작하는 환경으 ㄹ구성하기 위해 일잃이 수작업으로 패키지를 설치하고 소스코드를 깃에서 복제하거나 호스트에서 복사해야 합니다. 물론 직접 컨테니어세서 어플리케이션을 구동도 해보고 이미지로 커밋하기 때문에 이미지의 동작을 보장할 수 있다는 장점도 있다. 
+
+도커는 위와 같은 일련의 과정을 손쉽게 기록하고 수행할 수 있는 빌드 명령어를 제공한다.
+
+완성된 이미지를 생성하기 위해 컨테이너에 설치해야 하는 패키지 추가해야 하는 소스코드, 실행해야 하는 명령어와 쉘 스크립트 등을 하나의 파일에 기록해 두면 도커는 이파일을 읽어 컨테이너에서 작업을 수행한 뒤 이미지로 만들어 낸다. 
+
+이러한 작업을 기록한 파일의 이름을 dockerfile이라 하며 빌드 명령어는 dockerfile을 읽어 이미지를 생성한다. dockerfile을 사용하면 직접 컨테이너을 새엇ㅇ하고 이미지로 커밋해야 하는 번거로움을 덜 수 있을 뿐더러 깃과 같은 개발도구를 통해 애플리케이션의 빌드 및 배포를 자동화 할 수 있다.
+
+### Dockerfile 작성
+
+앞에서 설명한 것처럼 dockerfile은 컨테이너에서 수행해야 할 작업을 명시한다. 
+
+dockerfile을 사용하기 위한 간단한 시나리오로 웹서버 이미지를 생성하는 예를 설명해 본다.
+
+```
+mkdir dockerfile && cd dockerfile
+echo test >> test.html
+ls
+test.html
+```
+
+이후 생성한 디렉터리에 하단위 내용으로 Dockerfile이라는 이름의 파일을 저장한다. 
+이는 이미지에 아파치 웹서버를 설치한 뒤 로컬에 있는 test.html파일을 웹서버로 접근할 수 있는 컨테이너의 디렉터리인 /var/www/html로 복사한다.
+
+```
+vi Dockerfile
+
+FROM unbuntu:14.04
+MAINTAINER alicek106
+LABEL "purpose"="practice"
+RUN apt-get update
+RUN apt-get install apache2 -y
+ADD test.hmtl /var/www/html
+WORKDIR /var/www/html
+RUN ["/bin/bash", "-c", "ehco hello >> test2.html"]
+EXPOSE 80
+CMD apachectl -DFORCEGROUND
+```
+
+Dockerfile에서 사용되는 명령어에는 여러가지가 있지만 우선 FROM, RUN, ADD 등의 기초 명령어를 우선시 다루었다. 
+Dockerfile은 한 줄이 하나의 명령어가 되고 명령어(Instruction)를 명시한 뒤에 옵션을 추가하는 방식이다. 
+명령어는 소문자로 적어도 상관없으나 일반적으로 대문자로 적음
+
+- FROM
+  - 생성할 이미지의 베이스가 될 이미지를 뜻한다.
+  - FROM 명령어는 Dockerfile을 작성할 때 반드시 한번 이상 입력해야 하며, 이미지 이름으 ㅣ포맷은 docker run 명령어에서 이미지 이름을 사용했을 때와 같다.
+  - 사용할려는 이미지가 도커에 없다면 자동으로 pull 한다.
+- MAINTAINER
+  - 이미지를 생성한 개발자의 정보를 나타낸다.
+  - 일반적으로 DOCKERFILE을 작성한 사람과 연락할 수 있는 이메일 등을 입력한다. 
+  - 단, MAINTAINER는 도커 1.13.0 버전 이후 사용하지 않는다. 
+  - 대신 아래와 같은 LABEL로 교체해 사용할 수 있다.
+  - `LAVEL maintainer "alicek106 <allicek106@naver.com>"
+- LABEL 
+  - 이미지에 메타데이터를 추가합니다.
+  - 메타데이터는 '키:값' 의 형태로 저장되며 여러개으 ㅣ메타데이터가 저장될 수 있다.
+  - 추가된 메타데이터는 docker inpspect 명령어로 이미지의 정보를 구해서 확인할 수 있다.
+- RUN
+  - 이미지를 만들기 위해 컨테이너 내부에서 명령어를 실행한다.
+  - 예제에서는 apt-get update 와 apt-get install apache2 명령어를 실행가기 때문에 아파치 웹서거바 설치된 이미지가 생성된다.
+  - 단, Docker를 이미지로 빌드하는 과정에서는 별도의 입력이 불가능하기 때문에 apt-get install apache2 명령어에서 설치할 것인지 선택하는 Y/N 를 YES로 설정해야 한다.
+  - 만약 입력이 발생하게되면 오류로 간주하고 빌드 종료 함.
+  - RUN 명령어에 ["/bin/bash", "-c", "ehco hello >> test2.html"]과 같이 입력하면 /bin/bash쉘을 이용해 뒤의 명령어를 실행한다. 
+  - RUN ['실행가능한 파일', '명령줄 인자', '명령줄 인자' , ...]
+- ADD
+  - 파일을 이미지에 추가합니다.
+  - 추가하는 파일은 Dockerfile이 위차한 디렉터리인 CONTEXT에서 가져옵니다. 
+  - 즉, 도커파일이 위치한 디레게터리에서 파일을 가저온다.
+- WORKDIR
+  - 명령어를 실행할 디렉터리를 나타낸다. 배쉬 쉘에서 cd 명령어를 입력하는 것과 같은 기능을 한다. 
+  - WORKDIR /var/www/html 이 실행되고 RUN touch test를 실행하면 /var/www/html 디렉터리에 test파일이 생성된다.
+  - 즉, cd와 같은 명령어
+- EXPOSE
+  - Dockerfile의 빌드로 생성된 이미지에서 노출할 포트를 설정한다. 
+  - 그러나 EXPOSE를 설정한 이미지로 컨테이너를 생성했다고 해서 반드시 이 포트가 호스트이 포트와 바인딩 되는 것은 아니며 단지 컨테이너의 80번 포트를 사용할 것임을 나타내는 것.
+- CMD
+  - CMD는 컨테이너가 시작될 때만다 실행할 명령어를 설정하며, Dockerfile에서 한번만 사용할 수 있다.
+  - Dockerfile에 cmd를 명시함으로써 이미지에 apachectl -DFOREGROUND라는 커멘드를 내장하면 컨테이너를 생성할 때 별도의 커멘드를 입력하지 않아도 자동으로 아파치 웹서버를 실행시킨다.  
+
+### Dockerfile 이미지 생성
+
+```
+docker build -t mybuild:1.1 ./
+```
+
+- -t : 생성될 이미지으 ㅣ이름을 설정한다. 
+- build 명령어의 끝에는 Dockerfile이 저장된 경로를 입력한다. 일반적으로 로컬, 외부 URL을 사용해 빌드할 수 있다.
+
+### Dockerfile 로 생성한 이미지 실행
+
+```
+docker run -d -P --name myserver mybuild:0.0
+```
+
+- `-P` : 이미지에 설정된 EXPOSE의 모든 포트를 호스트에 연결하도록 설정한다. Dockerfile에서 EXPOSE를 80번으로 설정했으며 이는 이미지에 컨테이너의 80번 포트를 사용한다는 것을 의미한다.

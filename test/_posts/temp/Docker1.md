@@ -1,0 +1,153 @@
+---
+author_profile: true
+date: 2021-08-20
+title: "Docker 1 설치"
+categories: 
+    - Docker
+tag: 
+    - Docker
+    - DB
+    - Python
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# Docker 설치
+
+---
+## 1. Docker란?
+
+도커는 리눅스 컨테이너에 여러 기능을 추가함으로써 애플리케이션을 컨테이너로서 좀 더 쉽게 사용할 수 있게 만들어진 오픈소스 프로젝트이다.
+도터는 Go 언어로 작성되어 있으며, 기존에 쓰이던 가상화 방법인 가상 머신과는 달리 도커 컨테이너는 성능의 손실이 거의 없어서 차세대 클라우드 인프라 솔루션으로 많은 개발자들이 주목을 받고 있다.
+
+- 도커의 장점
+
+1. 어플리케이션의 개발과 배포가 편해진다.
+	1. 컨테이너 내부에서 많은 소프트웨어를 설치하고 설정을 수정하더라도 호스트 OS에 영향을 안 미쳐 독립된 개발 환경을 보장받을 수 있다.
+	2. 컨테이너 내부에서 작업을 마친 뒨 이를 운영환경에 배포하려고 하면 해당 컨테이너를 도커 이미지라고 하는 일종의 패키지로 만들어 운영서버에 전달하기만 하면 된다.
+	3. 도커 이미지는 가상머신의 이미지와 달리 커널을 포함하고 있지 않기 때문에 이미지 크기가 그다지 크지 않다. 
+2. 여러 어플리케이션의 독립성과 확장성이 높아진다.
+	1. 마이크로 서비스 구조로 변경하기 쉽다.
+
+- 도커 이미지와 컨테이너
+
+  - 도커 이미지
+  	- 이미지는 컨테이너를 생성할 때 필요한 요소이며, 가상머신을 생성할 때 사용하는 iso 파일과 비슷한 개념이다.
+  	- 이미지는 여러개의 계층으로 된 바이너리 파일로 존재하고, 컨테이너를 생성하고 실행할 때 읽기 전용으로 사용된다. 
+  	- 도커에서 사용되는 이미지의 이름은 기본적으로 [저장소 이름]/[이미지 이름]:[태그] 의 형태로 구성 ex.allicek106/ubuntu:14.04
+  - 도커 컨테이너
+  	- 도커 이미지는 우분투, centos 등 기본적인 리눅스 운영체제 부터, 아파치 웹서버, mysql, 하둡, 스파크, 스톰 등의 DB 분석 도구까지 가지가지로 있다.
+  	- 이러한 이미지로 컨테이너를 생성하면 해당 이미지의 목적에 맞는 파일이 들어있는 파일 시스템과 격리된 시스템 자원 및 네트워크를 사용할 수 있는 독립된 공간이 생성되고 이것이 도커 컨테이너 이다.
+  	- 컨테이너는 이미지를 읽기 전용으로 사용하되 이미지에서 변경된 사항만 컨테이너 계층에 저장하므로 컨테이너에서 무엇을 하던지 간에 원래 이미지에는 영향을 받지 않는다.
+
+
+## 2. CentOS 설치(Virtual Box)
+
+- [Virtual Box 다운로드](https://www.virtualbox.org/)
+- [CentOS7 Minimal ISO 다운로드](http://mirror.navercorp.com/centos/7/isos/x86_64/)
+- Virtual Box 설치 후 다운받은 CentOS 7 ISO를 설치한다.
+- 생성된 이미지 설정에서 네트워크 설정 변경
+  - 어댑터 1 > 다음에 연결됨(A) 부분 수정
+    - NAT : 가상머신 내에서 할당해 주는 자유로운 IP, 10.0.0.x 
+    - 어댑터에 브리지 : 호스트와 IP 대역대가 같은 고정적인 IP이다. 게스트 OS가 브리지에 연결된 것 처럼 동작하게 해준다.(즉, 별도의 PC가 또 하나 생겨 Network에 연결된 거와 같은 효과를 낸다.)
+- 리눅스 실행
+  - 인터넷 안될 시 
+    - ping 8.8.8.8으로 연결 확인
+    - `ifup enp0s3`
+    - 매번 킬 때마다 누르기 귀찮을 시 설정값 변경
+      - `vi /etc/sysconfig/network-scripts/ifconfig-enp0s3` 에서 `ONBOOT=yes`로 변경
+
+## 3. Docker 설치
+
+- yum install -y yum-utils
+- yum-config-manager --add-repo https://download.docker.com./linux/centos/docker-ce.repo
+- yum install docker-ce
+- systemctl start docker
+- docker info (도커 정보 확인)
+
+```
+[user@localhost ~]$ docker info
+Client:
+ Context:    default
+ Debug Mode: false
+ Plugins:
+  app: Docker App (Docker Inc., v0.9.1-beta3)
+  buildx: Build with BuildKit (Docker Inc., v0.6.3-docker)
+  scan: Docker Scan (Docker Inc., v0.9.0)
+
+Server:
+ Containers: 0
+  Running: 0
+  Paused: 0
+  Stopped: 0
+ Images: 0
+ Server Version: 20.10.11
+ Storage Driver: overlay2
+  Backing Filesystem: xfs
+  Supports d_type: true
+  Native Overlay Diff: true
+  userxattr: false
+ Logging Driver: json-file
+ Cgroup Driver: cgroupfs
+ Cgroup Version: 1
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog
+ Swarm: inactive
+ Runtimes: io.containerd.runtime.v1.linux runc io.containerd.runc.v2
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: 7b11cfaabd73bb80907dd23182b9347b4245eb5d
+ runc version: v1.0.2-0-g52b36a2
+ init version: de40ad0
+ Security Options:
+  seccomp
+   Profile: default
+ Kernel Version: 3.10.0-1160.el7.x86_64
+ Operating System: CentOS Linux 7 (Core)
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 1
+ Total Memory: 1.795GiB
+ Name: localhost.localdomain
+ ID: UR3D:L4DP:IOBA:VUUR:NEGX:GOXG:NZVJ:GYPM:SRGC:TNZY:XMRX:MK2U
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ Registry: https://index.docker.io/v1/
+ Labels:
+ Experimental: false
+ Insecure Registries:
+  127.0.0.0/8
+ Live Restore Enabled: false
+ ```
+- 만약 `Got permission denied while trying to connect to the Docker daemon socket `에러 발생 하면, 사용자가 /var/run/docker.sock을 접근할려 했지만 권한이 없어 발생하는 문제로 해당 사용자에게 root:docker 권한을 부여한다.
+
+- 다른 OS 설치 방법 추가
+  - Linux
+    1. uname -r   명령어로 현재 사용 중인 리눅스 커널을 확인한다. 최소 3.10 이상이여야 함.
+    2. 우분투
+    	1. crul -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    	2. add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) statble"
+    	3. apt-get update
+    	4. apt-get install docker-ce
+    3. CentOS 7, RHEL7
+    	1. yum install -y yum-utils
+    	2. yum-cinfig-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    	3. yum install -y docker-ce
+    	4. systemctl start docker
+    4. 설치 확인
+    	1. docker info
+  - Windows, Mac
+    1. 윈도우와  mac 에서 설치하는 도커를 일반적으로 docker desktop이라고 부르며 윈도우는 Hyper-v 가상화 기술을, MAC은 xhyve 기술을 사용해 리눅스 커널 기능과 도커 엔진 환경을 구성.
+    2. Docker Desktop for Windows 또는 Docker Destktop for MAC 을 설치해 사용
+
+## 4. SSH 접속
+virtual box의 해당 centos 속성에 들어가 네트워크 어뎁터 1 -> 고급 포트 포워딩 
+- 호스트 ip : 192.168.56.1 port 22
+- 게스트 ip : 10.0.2.15   port 22
+이후 접속
