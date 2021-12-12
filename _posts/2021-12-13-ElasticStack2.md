@@ -1,7 +1,7 @@
 ---
 author_profile: true
-date: 2021-08-20
-title: "Elastic Stack - Elastic Search 기본"
+date: 2021-12-13
+title: "Elastic Stack 2 - Elastic Search 기본"
 categories: 
     - Elastic Stack
 tag: 
