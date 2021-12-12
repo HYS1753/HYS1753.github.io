@@ -5,7 +5,7 @@ title: "Elastic Stack 2 - Elastic Search 기본"
 categories: 
     - Elastic Stack
 tag: 
-    - 기본
+    - Elastic Search
 
 # 목차
 toc: true  
