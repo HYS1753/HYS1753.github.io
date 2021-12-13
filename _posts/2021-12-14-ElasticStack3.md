@@ -1,7 +1,7 @@
 ---
 author_profile: true
 date: 2021-12-14
-title: "Elastic Stack - Elastic Search 검색"
+title: "Elastic Stack 3 - Elastic Search 검색"
 categories: 
     - Elastic Stack
 tag: 
