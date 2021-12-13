@@ -91,6 +91,7 @@ GET kibana_sample_data_ecommerce/_search
 - 필터 컨텍스트와 쿼리 컨텍스트를 구분하는 특별한 API가 있는것은 아니며 모두 search api를 사용한다.
 - 필터 컨텍스트는 논리(bool)쿼리 내부의 filter타입에 적용된다. 
 - 다음은 kibana_sample_data_ecommerce인덱스의 day_of_week가 Friday인 도큐먼트를 찾아달라는 요청이다.
+
 ```
 결과
 
@@ -131,6 +132,7 @@ GET kibana_sample_data_ecommerce/_search
         "day_of_week_i" : 4,
         ...
 ```
+
 - 위의 결과에서 hits.value 는 770개로 770개의 도큐먼트를 찾았다는 의미 이다.
 - 또한 스코어를 계산하지 않았기 때문에 _score 부분이 0.0 으로 나온다. 단순히 day_of_week가 Friday인지 아닌지만 확인하기 때문이다.
 
@@ -145,7 +147,7 @@ GET kibana_sample_data_ecommerce/_search
 ```
 GET kibana_sample_data_ecommerce/_search?q=customer_full_name:Mary
 ```
-    - kibana_sample_data_ecommerce 인덱스 중 customer_full_name 필드에 'Mary' 라는 용어가 포함된 도큐먼트를 검색
+>  kibana_sample_data_ecommerce 인덱스 중 customer_full_name 필드에 'Mary' 라는 용어가 포함된 도큐먼트를 검색
 
 - 결과
   
@@ -187,7 +189,7 @@ GET kibana_sample_data_ecommerce/_search?q=customer_full_name:Mary
 - REST API의 요청 본문 안에 JSON 형태로 쿼리를 작성한다.
 - 쿼리 DSL은 엘라스틱 서치의 모든 쿼리 스펙을 지원하기 때문에 매우 강력하며 복잡한 쿼리를 구현할 수 있다. 
 - 실행
-- 
+  
 ```
 GET kibana_sample_data_ecommerce/_search
 {
@@ -429,7 +431,7 @@ GET kibana_sample_data_ecommerce/_search
 - 용어빈도(Term Frequency)는 특정 용어가 하나의 도큐먼트에 얼마나 많이 등장했는지를 의미하는 지표
 - 일반적으로 특정 용어가 도큐먼트에서 많이 반복되었다면 그 용어는 도큐먼트의 주제와 연관되어 있을 확률이 높다.
 - TF 계산식은 다음과 같다
-  `tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:"`
+  - `tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:"`
   - `freq` : 도큐먼트 내에서 용어가 나온 횟수 
   - `k1`, `b`는 알고리즘을 정규화 하기 위한 가중치로 엘라스틱 서치가 디폴트로 취하는 상수
   - `dl` : 필드의 길이
