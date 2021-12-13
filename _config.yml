@@ -20,7 +20,7 @@ title                    : "HYS Blog"
 title_separator          : "-"
 subtitle                 : # site tagline that appears below site title in masthead
 name                     : "HYS"
-description              : "열심히 살자"
+description              : "HYS Blog"
 url                      : "https://HYS1753.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "HYS1753/HYS1753.github.io"
@@ -103,7 +103,7 @@ analytics:
 author:
   name             : "HYS"
   avatar           : "/assets/images/bio-photo.PNG"
-  bio              : "꾸준히 열심히"
+  bio              : "ㅇㅅㅇ"
   location         : "Somewhere"
   email            :
   links:
