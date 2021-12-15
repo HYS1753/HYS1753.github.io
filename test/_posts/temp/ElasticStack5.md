@@ -180,10 +180,10 @@ output {
   
 ```
 # filter-ex.log
-[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [START] [tablename: test1] [starttime: 12:21:37]
-[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [END][endtime: 12:21:37] [elapseTime: 0.354524850845]
-[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [START] [tablename: test1] [starttime: 12:21:37]
-[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [END][endtime: 12:21:37] [elapseTime: 0.000210046768188] [resultcount: 0]
+[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [START] [tablename: test1, starttime: 12:21:37]
+[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [END] [endtime: 12:21:37, elapseTime: 0.354524850845]
+[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [START] [tablename: test1, starttime: 12:21:37]
+[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [END] [endtime: 12:21:37, elapseTime: 0.000210046768188]
 [2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [nothing_to_update] [resultcount: 0]
 ```
 
@@ -277,8 +277,8 @@ output {
             [4] "[select_rows]",
             [5] "[START]",
             [6] "[tablename:",
-            [7] "test1]",
-            [8] "[starttime:",
+            [7] "test1,",
+            [8] "starttime:",
             [9] "12:21:37]"
         ]
     }
@@ -290,6 +290,7 @@ output {
 
   - 필터 플러그인 공통 옵션
     - logstash-test.conf의 필터 부분에 다은과 같이 추가하면 다음과 같은 결과가 나오게 된다.
+      - 필터 플러그인은 순서대로 동작하는데 split에 의해 message 필ㄷ의 문자열이 공백을 기준으로 분리되고, id 필드를 추가하고 필드 값은 message[2]를 사용한다. 마지막으로 message 부분을 지운다.
 
       ```
       # 필터 부분 추가
@@ -323,6 +324,67 @@ output {
       |remove_tag|성공한 이벤트에 붙은 태그를 제거할 수 있다.|
 
 
+#### 2.3.3 문자열 파싱(dissert)
 
+- 앞서 mutate 플러그인의 split 옵션을 이용해 문자열을 분리하면 하나의 구분자만 이용해서 데이터를 나눠야 한다는 단점이 있다. dissect 플러그인은 패턴을 사용해 문자열을 분석하고 주요 정보를 필드로 추출하는 기능을 한다.
+- logstash_test.conf 의 filter부분을 다음과 같이 수정한다.
+  
+  ```
+  filter {
+    dissect {
+      mapping => {"message" => "[%{timestamp}] [%{level}] [%{class}] [%{method}] [%{process}] [%{message}]"}
+    }
+  }
+  ```
 
+  - 결과
 
+  ```
+  {
+        "message" => "tablename: test1, starttime: 12:21:37",
+      "timestamp" => "2021-11-29 12:21:37",
+        "@version" => "1",
+          "method" => "select_rows",
+      "@timestamp" => 2021-12-14T01:26:08.085Z,
+        "process" => "START",
+          "level" => "info",
+            "path" => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+          "class" => "sy2pg",
+            "host" => "DESKTOP-USER"
+  }
+  ```
+
+  - dissect 플러그인의 mapping 옵션에 구분자 형태를 정의하고 필드를 구분한다. 
+  - `%{필드명}`으로 작성하면 중괄호 안의 필드명으로 새로운 필드가 만들어 진다. 
+  - `%{}` 외의 문자들은 모두 구분자 역할을 한다. 예를들면 다음과 같다.
+    - log : [2021-11-29 12:21:37]^[info]^[sy2pg]^[select_rows] -> ^ 는 띄어쓰기
+    - 구분자 : [%{timestamp}] [%{level}] [%{class}] [%{method}]
+
+- dissert 플러그인에 사용할 수 있는 필드 기호들 
+  - `->` : `%{필드명->}`으로 작성 시 공백이 몇 칸이던 하나의 공백으로 인식한다.
+  - `%{?필드명}`, `%{}` : 이렇게 작성한 필드명은 결과에 포함되지 않는다.
+    - `%{?->}` 다음과 같이 적으면 공백을 하나의 필드로 만든 다음 무시하는 의미가 된다.
+  - `%{+필드명}` : 여러개의 필드를 하나의 필드로 합쳐서 표현 ex. IP, Port 합치기
+
+#### 2.3.4 문자열 파싱(grok)
+
+- grok은 정규식을 이용해 문자열을 파싱할 수 있따. 
+- 정규 표현식은 특정한 규칙을 갖는 문자열을 표현하는 언어이다.
+- 패턴을 이용해 %{패턴:필드명} 형태로 데이터에서 특정 필드를 파싱할 수 있다.
+- grok 패턴
+
+  |패턴명|설명|
+  |-|-|
+  |NUMBER|십진수를 인식한다. 부호와 소수점을 포함할 수 있다.|
+  |SPACE|스페이스, 탭 등 하나 이상의 공백을 인식한다.|
+  |URI|URI르르 인식한다. 프로토콜, 인증정보, 호스트, 경로, 파라미터를 포함할 수 있다.|
+  |IP|IP 주소를 인식한다. IPv4, IPv6 모두 인식 가능|
+  |SYSLOGBASE|시스로그의 일반적인 포맷에서 타임스탬프, 중요도, 호스트, 프로세스정보까지 메시지 외의 헤더 부분을 인식한다.|
+  |TIMESTAMP_ISO8601|ISO8601 포멧의 타임스탬프를 인식한다. 0000-00-00T12:00:00+09:00와 같은 형태이며 타임존까지 정확한 정보를 기록하고 로그에선 많이 쓰이는 날짜 포멧이기에 grok 표현식을 나타낼 떄도 유용하다.|
+  |DATA| 이패턴의 직전 패턴부터 다음 패턴 사이를 모두 인식한다. 특별히 인식하고자 하는 값의 유형을 신경쓸 필요가 없으므로 특별히 값이 검증될 필요가 없다면 가장 많이 쓰이는 패턴 중 하나이다.|
+  |GREEDYDATA|DATA 타입과 동일하나, 표현식 가장 뒤에 위치시킬 경우 해당 위치부터 이벤트의 끝까지 값으로 인식한다.|
+
+- fliter 예시
+
+  ```
+  
