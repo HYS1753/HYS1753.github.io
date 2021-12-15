@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-08-20
+date: 2021-12-15
 title: "Elastic Stack - Elastic Search 집계"
 categories: 
     - Elastic Stack

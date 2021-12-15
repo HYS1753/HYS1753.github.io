@@ -160,4 +160,169 @@ output {
   - 위와 같이 출력되는 것을 확인할 수 있으며, 이중 message에 적힌 구문을 분석해 의미있는 데이터로 변환하는 것이 중요한 로그스태시의 업무아다.
 
 
-p230 6.3.2 필터 부터 다시 시작.
+### 2.3 필터(filter)
+
+- 로그스태시의 필터는 비정형 데이터를 정형화 하고 데이터 분석을 위한 구조를 잡아준다. 
+- 로그스태시의 필터를 통해 정형화된 데이터는 엘라스틱서치나 아마존 S3와 같은 스토리지에 전소오디어 분석 등의 용도로 활용된다.
+- 자주 사용되는 필터 플러그인
+
+  |필터 플러그인|설명|
+  |-|-|
+  |grok|grok 패턴을 사용해 메시지를 구조화된 형태로 분석한다. grok패턴은 일반적인 정규식과 유사하나 추가적으로 미리 정의된 패턴이나 필드 이름 설정, 데이터 타입 정의 등을 도와준다.|
+  |dissect|간단한 패턴을 사용해 메시지를 구조화된 형태로 분석한다. 정규식을 사용하지 않아 grok에 비해 자유도는 떨어지지만 더 빠른 처리가 가능하다.|
+  |mutate|필드명을 변경하거나 문자열 처리 등 일반적인 가공 함수들을 제공한다.|
+  |date|문자열을 지정한 패턴의 날자형으로 분석한다.
+
+
+#### 예제
+
+- 로그 예제
+  
+```
+# filter-ex.log
+[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [START] [tablename: test1] [starttime: 12:21:37]
+[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [END][endtime: 12:21:37] [elapseTime: 0.354524850845]
+[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [START] [tablename: test1] [starttime: 12:21:37]
+[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [END][endtime: 12:21:37] [elapseTime: 0.000210046768188] [resultcount: 0]
+[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [nothing_to_update] [resultcount: 0]
+```
+
+#### 2.3.1 정적 파일 입력 받기
+
+  ```
+  input {
+    file {
+      path => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log"
+      start_position => "beginning"
+      sincedb_path => "nul"
+    }
+  }
+
+  output {
+    stdout { }
+  }
+  ```
+
+  - 로그 예제 파일을 입력으로 받는 파이프라인 설정이다.
+  - start_position은 로그 스태시가 새로운 파일을 인식했을 때 파일을 어디서 읽을지 정하는 옵션
+    - beginning: 파일의 처음부터 시작
+    - end: 파일의 마지막 부터 시작
+  - sincedb_path은 sincedb 파일 생성 여부 결정하는 것. `nul`은 파일 만들지 않는 옵션
+    - sincedb:
+      - sincedb 데이터베이스 파일은 파일을 어디까지 읽었는지 기록하는 파일이다.
+      - start_position이 파일을 읽을떄 어디부터 읽을지 정하는데 이는 최초 한번만 적용된다.
+      - 즉, 로그스태시 재시작 시 sincedb 데이터베이스 파일을 보고 기록되어 있는 위치 부터 읽는다 만약 없을경우 지정된 start_position에 의해 읽는다.
+      - sincedb_path를 따로 입력하지 않으면 엘라스틱은 기본값으로 로그스태시 data/plugins/input/file 위치에 sincedb 데이터베이스 파일을 생성한다.
+
+
+#### 2.3.2 문자열 자르기
+
+  ```
+  #logstash-test.conf
+  input {
+    file {
+      path => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log"
+      start_position => "beginning"
+      sincedb_path => "nul"
+    }
+  }
+
+  filter {
+    mutate {
+      split => { "message" => " " }
+    }
+  }
+
+  output {
+    stdout { }
+  }
+  ```
+
+  - mutate 플러그인은 필드를 변형하는 다양한 기능을 제공하고 있다.
+  - 필드 이름 변경, 삭제 등의 작업이 가능하다. 
+  - mutate 옵션
+
+    |mutate option|설명|
+    |-|-|
+    |split|쉼표 같은 구분 문자를 기준으로 문자열을 배열로 나눈다.|
+    |rename|필드 이름을 바꾼다.|
+    |replace|해당 필드값을 특정 값으로 바꾼다.|
+    |uppercase|문자를 대문자로 변경한다.|
+    |lowercase|문자를 소문자로 변경한다.|
+    |join|배열을 쉼표 같은 구분 문자로 연결해 하나의 문자열로 합친다.|
+    |gsub|정규식이 일치하는 항목을 다른 문자열로 대체한다.|
+    |merge|특정 필드를 다른 필드에 포함시킨다.|
+    |ceorce|null인 필드에 기본값을 넣어준다.|
+    |strip|필드 값의 좌우 공백을 제거한다.|
+
+  - mutate는 많은 옵션이 있어서 순서가 중요하다.
+    - coerce → rename → update → replace → convert → gsub → uppercase → capitalize → lowercase → strip → remove → split → join → merge → copy 
+  - 로그스태시 실행 결과
+  
+    ```
+    D:\dev-tools\ElasticStack\logstash-7.10.1>.\bin\logstash.bat -f .\config\logstash-test.conf --log.level error
+    Using JAVA_HOME defined java: C:\Program Files\Java\jdk1.8.0_301
+    WARNING, using JAVA_HOME while Logstash distribution comes with a bundled JDK
+    Sending Logstash logs to D:/dev-tools/ElasticStack/logstash-7.10.1/logs which is now configured via log4j2.properties
+    {
+          "@version" => "1",
+              "host" => "DESKTOP-USER",
+        "@timestamp" => 2021-12-14T00:57:51.567Z,
+              "path" => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+          "message" => [
+            [0] "[2021-11-29",
+            [1] "12:21:37]",
+            [2] "[info]",
+            [3] "[sy2pg]",
+            [4] "[select_rows]",
+            [5] "[START]",
+            [6] "[tablename:",
+            [7] "test1]",
+            [8] "[starttime:",
+            [9] "12:21:37]"
+        ]
+    }
+    ...
+    ```
+
+    - 다음 결과와 같이 message 필드 문자열 공백을 기준으로 구분되어 배열 형태의 데이터가 된다.
+    - 구분된 문자들은 `필드명[숫자]` 와 같이 접근할 수 있다.
+
+  - 필터 플러그인 공통 옵션
+    - logstash-test.conf의 필터 부분에 다은과 같이 추가하면 다음과 같은 결과가 나오게 된다.
+
+      ```
+      # 필터 부분 추가
+      filter {
+        mutate {
+          split => { "message" => " " }
+          add_field => { "id" => "%{[message][2]}" }
+          remove_field => "message"
+        }
+      }
+
+      ==== 결과 ====
+      {
+                "path" => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+            "@version" => "1",
+          "@timestamp" => 2021-12-14T01:05:29.971Z,
+                "host" => "DESKTOP-USER",
+                  "id" => "[info]"
+      }
+      ```
+
+    - 필터 플러그인 공통 옵션
+
+      |공통 옵션|설명|
+      |-|-|
+      |add_field|새로운 필드를 추가할 수 있다.|
+      |add_tag|성공한 이벤트에 태그를 추가할 수 있다.|
+      |enable_metric|메트릭 로깅을 활성화하거나 비활성화 가능, 기본적으로 활성화되어 있으며, 수집한 데이터는 로그 스태시 모니터링에서 해당 필터의 성능을 분석할 때 사용한다.|
+      |id|플러그인 아이디를 설정한다. 모니터링 시 아이디를 이용해 특정 플러그인을 쉽게 찾을 수 있다.|
+      |remove_filed|필드를 삭제할 수 있다.|
+      |remove_tag|성공한 이벤트에 붙은 태그를 제거할 수 있다.|
+
+
+
+
+
