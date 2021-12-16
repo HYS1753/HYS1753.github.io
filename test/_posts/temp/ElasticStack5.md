@@ -387,4 +387,17 @@ output {
 - fliter 예시
 
   ```
+  ...
+  filter {
+    grok {
+      match => { "message" => "\[%{TIMESTAMP_ISO8601:timestamp}\] [ ]*\[%{LOGLEVEL:level}\] \[%{DATA:class}\] \[%{DATA:method}\]\[%{DATA:process}\] \[%{DATA:message}\]" }
+    }
+  }
+  ...
+  ```
+
+  - 결과
+  ```
+
   
+김세진 
