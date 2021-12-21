@@ -181,10 +181,10 @@ output {
 ```
 # filter-ex.log
 [2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [START] [tablename: test1, starttime: 12:21:37]
-[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [END] [endtime: 12:21:37, elapseTime: 0.354524850845]
-[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [START] [tablename: test1, starttime: 12:21:37]
-[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [END] [endtime: 12:21:37, elapseTime: 0.000210046768188]
-[2021-11-29 12:21:37] [info] [sy2pg] [convert_File] [nothing_to_update] [resultcount: 0]
+[2021-11-29 12:21:38] [info] [sy2pg] [select_rows] [END] [endtime: 12:21:38, elapseTime: 0.354524850845]
+[2021-11-29 12:21:39] [info] [sy2pg] [convert_File] [START] [tablename: test1, starttime: 12:21:37]
+[2021-11-29 12:21:40] [info] [sy2pg] [convert_File] [END] [endtime: 12:21:40, elapseTime: 0.000210046768188]
+[2021-11-29 12:21:41] [info] [sy2pg] [convert_File] [nothing_to_update] [resultcount: 0]
 ```
 
 #### 2.3.1 정적 파일 입력 받기
@@ -390,14 +390,378 @@ output {
   ...
   filter {
     grok {
-      match => { "message" => "\[%{TIMESTAMP_ISO8601:timestamp}\] [ ]*\[%{LOGLEVEL:level}\] \[%{DATA:class}\] \[%{DATA:method}\]\[%{DATA:process}\] \[%{DATA:message}\]" }
+      match => { "message" => "\[%{TIMESTAMP_ISO8601:timestamp}\] [ ]*\[%{LOGLEVEL:level}\] \[%{DATA:class}\] \[%{DATA:method}\] \[%{DATA:process}\] \[%{DATA:msg}\]" }
     }
   }
   ...
   ```
 
-  - 결과
+- 결과
+  ```
+  {
+        "message" => "[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [START] [tablename: test1, starttime: 12:21:37]\r",
+            "host" => "DESKTOP-USER",
+          "level" => "info",
+        "@version" => "1",
+            "path" => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+          "method" => "select_rows",
+          "class" => "sy2pg",
+      "timestamp" => "2021-11-29 12:21:37",
+        "process" => "START",
+            "msg" => "tablename: test1, starttime: 12:21:37",
+      "@timestamp" => 2021-12-20T05:39:43.430Z
+  }
   ```
 
+  - grok은 기본적으로 `%{패턴명:변수명}`의 형태로 작성한다. 
+  - `[`, `]`, `-`, `.` 과 같은 기호는 역슬레시(`\`)를 붙여 삭제할 수 있다. 
+  - 데이터 사이의 공백이 있을 때 `[ ]*`이라는 정규식을 사용해 모든 공백을 허용토록 한다.
   
-김세진 
+- 로그스테시에서 지원하는 grok TIMESTAMP_ISO8601 패턴
+  ```
+  TIMESTAMP_ISO8601 %{YEAR}-%{MONTHNUM}-%{MONTHDAT}[T ]%{HOUR}:?%{MINUTE}(?::?%{SECOND})?%{ISO8601_TIMEZONE}?
+  ```
+
+#### 2.3.5 대소문자 변경(mutate)
+
+- 상단의 groc에 mutae필터를 추가해 debug level부분을 대문자로 변경해 본다.
+
+  ```
+  filter {
+    grok {
+      match => { "message" => "\[%{TIMESTAMP_ISO8601:timestamp}\] [ ]*\[%{LOGLEVEL:level}\] \[%{DATA:class}\] \[%{DATA:method}\] \[%{DATA:process}\] \[%{DATA:msg}\]" }
+    }
+    mutate {
+      uppercase => ["level"]
+    }
+  }
+  ```
+
+- 결과
+
+  ```
+  {
+            "path" => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+            "host" => "DESKTOP-USER",
+      "@timestamp" => 2021-12-20T06:01:42.323Z,
+          "method" => "select_rows",
+          "class" => "sy2pg",
+          "level" => "INFO",
+            "msg" => "tablename: test1, starttime: 12:21:37",
+        "message" => "[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [START] [tablename: test1, starttime: 12:21:37]\r",
+      "timestamp" => "2021-11-29 12:21:37",
+        "@version" => "1",
+        "process" => "START"
+  }
+  ```
+  - mutate 플러그인의  uppercase 옵션을 통해 loglevel 필드의 데이터를 모두 대무자로 변경한다.
+  - 소문자로 변경하는 옵션은 lowercase이다.
+
+#### 2.3.6 날짜 시간 문자열 분석(date)
+
+- 다양한 형태의 날짜 / 시간 포멧을 date 플러그인을 통해 기본 날짜 / 시간 포멧으로 인덱싱 할 수 있다. 
+- 엘라스틱서치의 경우 ISO8601표준 포멧을 기본으로 사용하고 있다.(yyyy-MM-dd\`T\`HH:mm:ss.SSSSSSZ, yyyy-MM-dd, epoch_millis)
+- 하단의 필터는 dissect 플러그인으로 문자열을 자른 후 Timestamp를 제외한 다른 필드 모두를 ?를 통해 무시하도록 한다.
+- 다음으로 mutate 플러그인의 strip 옵션을 통해 timestamp 좌우에 공백이 있으면 제거한다.
+- date 플러그인으로 timestamp의 필드에서 `yyyy/MM/dd HH:mm:ss`, `YYYY-MM-dd HH:mm:ss`와 같은 형태의 날짜 /시간 문자열이 들어오게 된다면 매칭되게 된다.
+- 다음은 new_timestamp라는 컬럼이 새로 생겨난 것을 확인할 수 있다.
+
+  ```
+  filter {
+    dissect {
+        mapping => {"message" => "[%{timestamp}] [%{?level}] [%{?class}] [%{?method}] [%{?process}] [%{?message}]"}
+    }
+    mutate {
+      strip => "timestamp"
+    }
+    date {
+      match => [ "timestamp", "yyyy/MM/dd HH:mm:ss", "YYYY-MM-dd HH:mm:ss" ]
+      target => "new_timestamp"
+      timezone => "UTC"
+    }
+  }
+  ```
+
+- 결과
+  
+  ```
+  {
+      "new_timestamp" => 2021-11-29T12:21:37.000Z,
+              "host" => "DESKTOP-USER",
+              "path" => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+        "@timestamp" => 2021-12-20T06:26:38.362Z,
+          "timestamp" => "2021-11-29 12:21:37",
+            "message" => "[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [START] [tablename: test1, starttime: 12:21:37]\r",
+          "@version" => "1"
+  }
+  ```
+
+#### 2.3.7 조건문
+
+- 필터는 기본적으로 모든 이벤트에 적용이된다. 단순히 csv, json과 같이 정해진 포맷을 읽어 들이는 경우라면 괜찮지만, 일반적으로 입력되는 이벤트의 형태는 다양하고 이에 따른 필터를 각각 적용해야 할 필요성이 있다.
+- 이러한 경우 로그스테시는 일반적인 프로그래밍 언어와 동일하게 IF, ELSE, ELSE IF 조건문을 제공해 각각 조건에 맞는 필터를 적용할 수 있다.
+  
+- log
+
+  ```
+  [2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [START] [tablename: test1, starttime: 12:21:37]
+  [2021-11-29 12:21:38] [debug] [sy2pg] [select_rows] [END] [endtime: 12:21:37, elapseTime: 0.354524850845]
+  [2021-11-29 12:21:39] [info] [sy2pg] [convert_File] [START] [tablename: test1, starttime: 12:21:37]
+  [2021-11-29 12:21:40] [debug] [sy2pg] [convert_File] [END] [endtime: 12:21:37, elapseTime: 0.000210046768188]
+  [2021-11-29 12:21:41] [warn] [sy2pg] [convert_File] [nothing_to_update] [resultcount: 0]
+  ```
+
+- logstash-test.conf
+
+  ```
+  ...
+  filter {
+    dissect {
+        mapping => {"message" => "[%{timestamp}] [%{level}] [%{class}] [%{method}] [%{process}] [%{message}]"}
+    }
+    if [level] == "info" {
+      drop { }
+    }
+    else if [level] == "warn" {
+      mutate {
+        remove_field => ["class", "method"]
+      }
+    }
+  }
+  ...
+  ```
+
+- 결과
+
+  ```
+  {
+      "@timestamp" => 2021-12-20T07:23:38.712Z,
+          "class" => "sy2pg",
+        "message" => "endtime: 12:21:37, elapseTime: 0.354524850845",
+            "path" => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+            "host" => "DESKTOP-USER",
+        "@version" => "1",
+      "timestamp" => "2021-11-29 12:21:38",
+          "level" => "debug",
+          "method" => "select_rows",
+        "process" => "END"
+  }
+  {
+      "@timestamp" => 2021-12-20T07:23:38.713Z,
+        "message" => "resultcount: 0",
+            "path" => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+            "host" => "DESKTOP-USER",
+        "@version" => "1",
+      "timestamp" => "2021-11-29 12:21:41",
+          "level" => "warn",
+        "process" => "nothing_to_update"
+  }
+  {
+      "@timestamp" => 2021-12-20T07:23:38.713Z,
+          "class" => "sy2pg",
+        "message" => "endtime: 12:21:37, elapseTime: 0.000210046768188",
+            "path" => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+            "host" => "DESKTOP-USER",
+        "@version" => "1",
+      "timestamp" => "2021-11-29 12:21:40",
+          "level" => "debug",
+          "method" => "convert_File",
+        "process" => "END"
+  }
+  ```
+
+  - 다음 결과와 같이 level이 info 인 부분은 삭제 되었다.
+  - 또한, level이 warn 이였던 로그는 class와 method 필드가 삭제되고 나머지는 그대로 출력된 것을 확인할 수 있다.
+
+### 2.4 출력
+
+- 자주 사용되는 출력 플러그인
+
+  |출력 플러그인|설명|
+  |-|-|
+  |elasticsearch|가장 많이 사용되는 출력 플러그인으로, bulk API를 사용해 엘라스틱서치에 인덱싱을 수행한다.|
+  |file|지정한 파일의 새로운 줄에 데이터를 기록한다.|
+  |karfka|카프라 토픽에 데이터를 기록한다.|
+
+#### 2.4.1 엘라스틱 서치로 전송
+
+- logstash-test2.conf
+  ```
+  input {
+    file {
+      path => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log"
+      start_position => "beginning"
+      sincedb_path => "nul"
+    }
+  }
+
+  output {
+    file {
+      path => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/output.json"
+    }
+    elasticsearch {
+      index => "output"
+    }
+  }
+  ```
+
+- json 결과(output.json)
+
+  ```
+  {"message":"[2021-11-29 12:21:38] [debug] [sy2pg] [select_rows] [END] [endtime: 12:21:37, elapseTime: 0.354524850845]\r","@version":"1","@timestamp":"2021-12-20T07:35:24.034Z","path":"D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log","host":"DESKTOP-USER"}
+  {"message":"[2021-11-29 12:21:40] [debug] [sy2pg] [convert_File] [END] [endtime: 12:21:37, elapseTime: 0.000210046768188]\r","@version":"1","@timestamp":"2021-12-20T07:35:24.035Z","path":"D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log","host":"DESKTOP-USER"}
+  {"message":"[2021-11-29 12:21:41] [warn] [sy2pg] [convert_File] [nothing_to_update] [resultcount: 0]\r","@version":"1","@timestamp":"2021-12-20T07:35:24.035Z","path":"D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log","host":"DESKTOP-USER"}
+  {"message":"[2021-11-29 12:21:37] [info] [sy2pg] [select_rows] [START] [tablename: test1, starttime: 12:21:37]\r","@version":"1","@timestamp":"2021-12-20T07:35:24.003Z","path":"D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log","host":"DESKTOP-USER"}
+  {"message":"[2021-11-29 12:21:39] [info] [sy2pg] [convert_File] [START] [tablename: test1, starttime: 12:21:37]\r","@version":"1","@timestamp":"2021-12-20T07:35:24.035Z","path":"D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log","host":"DESKTOP-USER"}
+  ```
+
+- elasticsearch 결과(Kibana Dev tool 활용)
+
+  ```
+  GET output/_search
+  ==== 결과 ====
+  {
+    "_index" : "output",
+    "_type" : "_doc",
+    "_id" : "73LE1n0BdfuLLSWGPVZH",
+    "_version" : 1,
+    "_seq_no" : 2,
+    "_primary_term" : 1,
+    "found" : true,
+    "_source" : {
+      "message" : """[2021-11-29 12:21:40] [debug] [sy2pg] [convert_File] [END] [endtime: 12:21:37, elapseTime: 0.000210046768188]
+  """,
+      "@version" : "1",
+      "@timestamp" : "2021-12-20T07:35:24.035Z",
+      "path" : "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log",
+      "host" : "심하용_노트북"
+    }
+  }
+  ```
+
+- elasticsearch 결과(curl 활용)
+  
+  ```
+  D:\dev-tools\ElasticStack\logstash-7.10.1>curl -X GET "localhost:9200/output"
+  ==== 결과 ====
+  {"output":{"aliases":{},"mappings":{"properties":{"@timestamp":{"type":"date"},"@version":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"host":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"message":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}},"path":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}}}},"settings":{"index":{"routing":{"allocation":{"include":{"_tier_preference":"data_content"}}},"number_of_shards":"1","provided_name":"output","creation_date":"1639985724272","number_of_replicas":"1","uuid":"R-Pta9mKSYidtnKdnLADJw","version":{"created":"7100199"}}}}}
+  ```
+
+- 엘라스틱서치 플러그인 옵션
+
+  |옵션|설명|
+  |-|-|
+  |hosts|이벤트를 전송할 엘라스틱서치의 주소|
+  |index|이벤트를 인덱싱할 대상 인덱스|
+  |document_id|인덱싱될 문서의 아이디를 직접 지정할 수 있는 옵션|
+  |user/password|엘라스틱서치에 보안기능이 활성화 되어 있을 때 인증을 위한 사용자 이름과 비밀번호|
+  |pipeline|엘라스틱서치에 등록된 인제스트 파이프라인을 활용하기 위한 옵션|
+  |template/template_name|로그스태시에서 기본 제공되는 인덱스 템플릿 외에 커스텀 템플릿을 사용하기 위한 옵션. template에는 정의한 인덱스 템플릿 파일의 경로를, template_name에는 엘라스틱서치에 어떤이름으로 등록할 지 설정할 수 있다.|
+
+### 2.5 코덱
+
+- 코덱은 입력, 출력, 필터와 달리 독립적으로 동작하지 않고 입력과 출력 과정에 사용되는 플러그인이다. 
+- 입/출력시 메시지를 적절한 형태로 변환하는 스트림 필터이다. 즉 입력과 출력 단계에서 인코딩 디코딩을 담당하며 필터 단계에서는 코덱을 사용할 수 없다.
+- 코덱 플러그인
+  |플러그인|설명|
+  |-|-|
+  |json|입력시 JSON 형태의 메시지를 객체로 읽어들인다. 출력 시에는 이벤트 객체를 다시금 JSON 형태로 변환한다.|
+  |plain|메시지를 단순 문자열로 읽어들인다. 출력시에는 원하는 포멧을 정할 수 있다.|
+  |rubydebug|로그스태시의 설정을 테스트하거나 예기치 못한 파이프라인 설정 오류를 디버깅하기 위한 목적으로 주로 사용되며, 출력 시 루비(Ruby)언어의 해시 형태로 이벤트를 기록한다. 입력시에는 사용하지 않는다. 표준 출력(stdout)플러그인에서 코덱을 따로 명시하지 않으면 기본으로 사용되는 코덱이다.|
+
+- 예시
+  ```
+  input {
+    file {
+      path => "D:/dev-tools/ElasticStack/logstash-7.10.1/config/filter-ex.log"
+      start_position => "beginning"
+      sincedb_path => "nul"
+      codec =>"plain"
+    }
+  }
+  output {
+    stdout {
+      #codec => "line"
+      #codec => "json"
+      #codec => "rubydebug"
+    }
+  }
+  ```
+
+
+### 2.6 다중 파이프라인
+
+- 다중 파이프라인은 하나의 로그스태시에서 여러개의 파이프라인을 독립적으로 실행할 수 있게 한다.
+- 다중 파이프라인을 사용하기 위해서는 config 디렉터리 아레 pipilines.yml 파일을 수정해야 한다.
+- pipeline.yml 에 다음과 같이 예시에 따라 설정한다.
+  ```
+  # Example of two pipelines:
+  #
+  # - pipeline.id: test
+  #   pipeline.workers: 1
+  #   pipeline.batch.size: 1
+  #   config.string: "input { generator {} } filter { sleep { time => 1 } } output { stdout { codec => dots } }"
+  # - pipeline.id: another_test
+  #   queue.type: persisted
+  #   path.config: "/tmp/logstash/*.config"
+  - pipeline.id: mypipe1
+    path.config: "/dev-tools/ElasticStack//logstash-7.10.1/config/mypipe1.conf"
+  - pipeline.id: mypipe2
+    path.config: "/dev-tools/ElasticStack//logstash-7.10.1/config/mypipe2.conf"
+  ```
+  - pipeline 설정
+    |설정|설명|
+    |-|-|
+    |pipeline.id|파이프라인의 고유한 아이디|
+    |path.config|파이프라인 설정 파일의 위치|
+    |pipeline.workers|필터와 출력을 병렬로 처리하기 위한 워커 수, 기본적으로 호스트의 CPU 코어 수와 동일하게 설정된다.|
+    |pipeline.batch.size|입력 시 하나의 워커당 최대 몇 개까지의 이벤트를 동시에 처리할 지를 결정한다. 배치 처리된 이벤트들은 엘라스틱서치 출력에서 하나의 벌크 요청으로 묶이기 때문에. 이 수치가 클 수록 요청 수행 횟수가 줄어들어 인덱싱 성능 개선 효과가 있지만, 그만큼 단일 요청이 커지므로 1000, 2000과 같이 적당히 조절해가면 튜닝할 필요가 있다.|
+    |queue.type|파이프라인에서 사용할 큐의 종류를 정할 수 있다. 기본적으로 memory 타입이 사용되나, persisted 타입을 선택해 이벤트의 유실을 좀 더 최소화 할 수 있다.|
+
+- mypipe1.conf
+  
+  ```
+  input {
+    file {
+      path => "D:/dev-tools/ElasticStack/elasticsearch-7.10.1/logs/elasticsearch.log"
+      start_position => "beginning"
+      sincedb_path => "nul"
+    }
+  }
+
+  output {
+    stdout { }
+  }
+  ```
+
+- mypip2.conf
+
+  ```
+  input {
+    file {
+      path => "D:/dev-tools/ElasticStack/elasticsearch-7.10.1/logs/gc.log"
+      start_position => "beginning"
+      sincedb_path => "nul"
+    }
+  }
+
+  output {
+    stdout { }
+  }
+  ```
+
+- 로그스태시를 실행하면 기본적으로 pipeline.yml에 정의되어 있는 파이프라인을 인식하는데 -f, -e 옵션을 사용해 실행하면 pipeline.yml 대신 사용자가 지정한 파이프라인을 사용하게 된다.
+- 위의 예시에서는 -f 옵션을 통해 직접 만든 파이프라인을 사용했었지만 -f 옵션을 다음과 같이 사용하지 않으면 기본 pipelines.yml으로 실행한다.
+- `.\bin\logstash.bat`
+
+
+
+### 2.7 모니터링
+
+- 로그스태시가 제공하는 API를 활용해 특정 시점의 통계 정보를 보는 방법과 모니터링 기능을 활성화해서 지속적인 통계 정보를 수집하고 키바나를 토앻 대시보드 형태로 연속적인 모니터링을 수행할 수 있는 방법으로 크게 두가지 방법이 있다.
+
+
+#### API를 이용한 로그스태시 활용
+
+- logstash API List
+  |정보|사용법|
