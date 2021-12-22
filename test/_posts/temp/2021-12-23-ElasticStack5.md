@@ -1,7 +1,7 @@
 ---
 author_profile: true
-date: 2021-08-20
-title: "Elastic Stack - logstash"
+date: 2021-12-23
+title: "Elastic Stack 5 - logstash"
 categories: 
     - Elastic Stack
 tag: 
@@ -764,4 +764,33 @@ output {
 #### API를 이용한 로그스태시 활용
 
 - logstash API List
-  |정보|사용법|
+  
+  |정보|사용법|표시 내용|
+  |-|-|-|
+  |노드|`curl -XGET 'localhost:9600/_node?pretty`|로그스태시가 실행되고 있는 노드의 기본정보를 제공(파이프라인, OS, JVM 등)|
+  |플러그인|`curl -XGET 'localhost:9600/_node/plugins?pretty`|로그스태시의 플러그인 정보|
+  |노드 통계|`curl -XGET 'localhost:9600/_node/stats?pretty`|파이프라인, 이벤트 프로세스 등의 로그스태시 통계정보를 제공한다.|
+  |핫 스레드|`curl -XGET 'localhost:9600/_node/hot_thread?pretty`|CPU 사용량이 많은 스레드를 높은 순으로 보여주는데 문제 발생 시 원인을 찾는데 사용|
+
+#### 키바나를 이용한 모니터링
+
+- 모니터링 기능 활성화
+  - 모니터링 기능을 활성화하게 되면 로그스태시 통계 데이터를 엘라스틱서치에 전송하고 키바나ㅏ GUI를 이용해 모니터링 정보를 연속적으로 파악할 수 있다.
+  - logstash/config/logstash.yml 파일 설정을 열어 다음과 같이 수정한다.
+
+    ```
+    # X-Pack Monitoring
+    # https://www.elastic.co/guide/en/logstash/current/monitoring-logstash.html
+    xpack.monitoring.enabled: true
+    #xpack.monitoring.elasticsearch.username: logstash_system
+    #xpack.monitoring.elasticsearch.password: password
+    #xpack.monitoring.elasticsearch.proxy: ["http://proxy:port"]
+    xpack.monitoring.elasticsearch.hosts: ["http://localhost:9200"]
+    ```
+
+  - 키바나의 좌상단 토그메뉴 선택 -> Management -> Stack Monitoring 접속(처음 사용시 회색 Or, setup with self monitoring 선택 후 Turn On monitoring 선택)
+
+
+
+
+
