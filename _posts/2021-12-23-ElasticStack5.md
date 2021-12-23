@@ -694,6 +694,7 @@ output {
 - 다중 파이프라인은 하나의 로그스태시에서 여러개의 파이프라인을 독립적으로 실행할 수 있게 한다.
 - 다중 파이프라인을 사용하기 위해서는 config 디렉터리 아레 pipilines.yml 파일을 수정해야 한다.
 - pipeline.yml 에 다음과 같이 예시에 따라 설정한다.
+
   ```
   # Example of two pipelines:
   #
