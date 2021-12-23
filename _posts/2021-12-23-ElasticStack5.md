@@ -711,6 +711,7 @@ output {
     path.config: "/dev-tools/ElasticStack//logstash-7.10.1/config/mypipe2.conf"
   ```
   - pipeline 설정
+
     |설정|설명|
     |-|-|
     |pipeline.id|파이프라인의 고유한 아이디|
