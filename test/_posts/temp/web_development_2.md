@@ -456,3 +456,51 @@ toc_sticky: true
       - 사용자가 내용을 폼에 입력한 후 submit버튼을 누르면 폼을 서버로 전송하는데 이때 필수 필드가 채워 졌는지 확인하는 속성
       - `<input type="텍스트-입력-필드" required>`
 
+  - 폼에서 사용하는 여러가지 태그
+    - 여러 줄을 입력하는 텍스트 영역 `<textarea>` 테그
+      - `<textarea></textarea>`
+      - 테그 속성
+        - cols : 텍스트 영역의 가로 너비를 문자 단위로 지정
+        - rows : 텍스트 영역의 세로 길이를 줄 단위로 지정한다. 지정한 숫자보다 줄 개수가 많아지면 스크롤 막대가 생긴다.
+      - ex.
+        - `<textarea id="memo" cols="40" rows="4"></textarea>`
+    - 드롭 다운 목록을 만들어 주는 `<select>`, `<option>` 테그
+      - 사용자가 직접 입력하지 않고 여러 옵션 중 선택하게 하는 드롭 다운 목록 생성
+        
+        ```
+        <select>
+          <option value="값1">내용1</option>
+          <option value="값2">내용2</option>
+          ...
+        </select>
+        ```
+
+      - `<select>` 태그 속성
+        - size : 화면에 표시할 항목의 개수를 지정한다.
+        - multiple : 드롭다운 목록에서 둘 이상의 항목을 선택할 때 사용한다.
+      - `<option>` 태그 속성
+        - value : 해당 항목을 선택할 때 서버로 넘겨줄 값을 지정한다.
+        - selected : 드롭다운 메뉴를 삽입할 때 기본적으로 선택해서 보여줄 항목을 지정한다.
+  
+    - 데이터 목록을 만들어 주는 `<datalist>`, `<option>` 태그
+      - select 태그와 비슷하지만 value의 값도 같이 출력된다는 특징이 있다.
+        
+        ```
+        <input type="text" list="데이터 목록 id">
+        <datalist id="데이터 목록 id">
+          <option value="서버로 넘길 값1">선택 옵션1</option>
+          <option value="서버로 넘길 값2">선택 옵션2</option>
+          ...
+        </datalist>
+        ```
+
+    - 버튼을 만들어 주는 `<button>` 태그
+      - `<input>` 태그의 필드를 사용해서 button으르 삽입할 수도 있지만 직접 버튼 태그를 이용해 폼을 전송하거나 리셋할 수 있다.
+      - `<button type="submit">내용</button>`
+      - `<button type="reset">내용</button>`
+      - `<button type="button">내용</button>`
+      - button 태그의 속성
+        - submit : 폼을 서버로 전송한다. `<input type="submit">` 과 같은 기능
+        - reset : 폼에 입력한 내용을 초기화 한다. `<input type="reset">` 과 같은 기능
+        - button : 버큰 형태만 만들 뿐 자체 기능은 없다. `<input type="button">`과 같은 기능
+
