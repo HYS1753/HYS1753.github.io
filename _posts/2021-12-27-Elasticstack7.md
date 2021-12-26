@@ -1,6 +1,6 @@
 ---
 author_profile: true
-date: 2021-08-20
+date: 2021-12-27
 title: "Elastic Stack 7 - Kibana"
 categories: 
     - Elastic Stack
