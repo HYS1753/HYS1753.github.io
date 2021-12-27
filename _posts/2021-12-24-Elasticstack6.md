@@ -146,13 +146,13 @@ toc_sticky: true
 
     - 완료 후 키바나의 dashboard로 가면 다음과 같이 샘플 대시보드들이 생성된 것을 확인할 수 있다.
 
-    ![filebeat setup 이후 생성된 샘플](/assets/images/Elasticstack-beats1.PNG)
+    ![filebeat setup 이후 생성된 샘플](/assets/images/2021-12-24/Elasticstack-beats1.PNG)
 
 
     - setup이 완료 되면 `.\filebeat.exe -e`를 통해 파일 비트를 실행시킨다.
     - 이후 키바나의 Management->Stack Management -> Index Managemet 에 들어가면 현재 클러스터의 인덱스를확인할 수 있는데 filebeat-* 이라는 인덱스를 확인할 수 있다.
 
-    ![filebeat index](/assets/images/Elasticstack-beats2.PNG)
+    ![filebeat index](/assets/images/2021-12-24/Elasticstack-beats2.PNG)
 
 ### 3.4 FileBeat 설정
 

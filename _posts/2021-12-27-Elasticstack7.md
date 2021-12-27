@@ -63,17 +63,17 @@ toc_sticky: true
         }
         ```
     - 2. 키바나 왼쪽 상단 토글 메뉴 선택 Managemet > Stack Management 선택 그 중 Kibana > Index Patterns라는 링크 를 통해 인덱스 패턴을 만들 수 있다.(create index pattern)
-        ![Create Index Pattern](/assets/images/Elasticstack-beats3.PNG)
+        ![Create Index Pattern](/assets/images/2021-12-27/Elasticstack-beats3.PNG)
     - 3. index pattern name에 kibnan_index 까지 치면 하단에 다음 그림과 같이 지정할 수 있는 인덱스를 확인할 수 있다. 또한 뒤에 *, - 와 같이 특정 패턴을 제외 혹은 추가 할 수 있다.
-        ![Index Pattern name1](/assets/images/Elasticstack-beats4.PNG)
-        ![Index Pattern name2](/assets/images/Elasticstack-beats5.PNG)
+        ![Index Pattern name1](/assets/images/2021-12-27/Elasticstack-beats4.PNG)
+        ![Index Pattern name2](/assets/images/2021-12-27/Elasticstack-beats5.PNG)
     - 4. 키바나 인덱스 패턴이 생성되었으며 이제 키바나 데이터 탐색과 시각화가 가능하다.
   
 ## 3. Discover
 
 - Disconver 화면 구성
 
-  ![Index Pattern name2](/assets/images/Elasticstack-beats6.PNG)
+  ![Index Pattern name2](/assets/images/2021-12-27/Elasticstack-beats6.PNG)
 
   - 툴바 : 결과를 저장하고 불러오는 등의 기능 버튼이 위치한다.
   - 인덱스 패턴 : 탐색할 인덱스 패턴을 선택할 수 있다.
@@ -109,11 +109,11 @@ toc_sticky: true
 
 1. Kibana의 좌상단 토글메뉴에서 Kibana > Visualize > Create visualization 클릭
 
-![create visualization](/assets/images/Elasticstack-beats7.PNG){: .align-center}
+![create visualization](/assets/images/2021-12-27/Elasticstack-beats7.PNG){: .align-center}
 
 2. 위와 같이 다양한 형태의 시각화 유형을 선택할 수 있으며 여기서는 Virtical 을 선택한다.
 
-![virtical virtualization](/assets/images/Elasticstack-beats8.PNG){: .align-center}
+![virtical virtualization](/assets/images/2021-12-27/Elasticstack-beats8.PNG){: .align-center}
 
 3. 먼저 Metrics와 Bucket을 설정해야 한다. 
    1. Metrics는 평균값, 최솟값, 최댓값 같은 통계를 보여주고 그래프 상에서 Y축에 속한다.
@@ -133,15 +133,15 @@ toc_sticky: true
       8. Terms : 필드의 유니크한 값을 기준으로 구분한다.
    5. Date Histogram을 사용하면 다음과 같이 출력된다.
 
-![Date Histogram](/assets/images/Elasticstack-beats9.PNG){: .align-center}
+![Date Histogram](/assets/images/2021-12-27/Elasticstack-beats9.PNG){: .align-center}
 
    6. Range 를 사용하면 다음과 같다. 
 
-![range](/assets/images/Elasticstack-beats10.PNG){: .align-center}
+![range](/assets/images/2021-12-27/Elasticstack-beats10.PNG){: .align-center}
 
    7. Terms를 이용해 특정 필드의 고유값을 기준으로 데이터를 구분하고 용어집계를 통해 x축을 그린다. 
 
-![terms](/assets/images/Elasticstack-beats11.PNG){: .align-center}
+![terms](/assets/images/2021-12-27/Elasticstack-beats11.PNG){: .align-center}
 
 5. Metrics 
    1. bucket이 x축을 설정한다면 Metricsㄴ는 Y축을 정하는데 x 축을 어떤 통곗값으로 표현할지 보여주는 것이다.
@@ -149,7 +149,7 @@ toc_sticky: true
    3. Metrics는 특별한 설정을 하지 않으면 Count값이 기본 설정이다.
    4. Metrics에서 Y-axis를 설정하고 Aggregation - average, field- AvgTicketPrice로 설정하면 다음과 같이 출력된다.
 
-![terms](/assets/images/Elasticstack-beats12.PNG){: .align-center}
+![terms](/assets/images/2021-12-27/Elasticstack-beats12.PNG){: .align-center}
 
 6. Metrics에서 파이프라인 집계 사용
    1. Derivative(미분) 집계 수행
@@ -157,7 +157,7 @@ toc_sticky: true
    3. Metrics에 Y-axias를 추가하고 Aggregation - Derivative, Metrics -(앞서 만든)Metrics:Average AvgTicketPrice 선택하면 다음과 같은 결과가 출력된다.
    4. 이는 앞서 출력한 막대 그래프에 변화량이 추가된 것이다. 
 
-![terms](/assets/images/Elasticstack-beats13.PNG){: .align-center}
+![terms](/assets/images/2021-12-27/Elasticstack-beats13.PNG){: .align-center}
 
 
 
