@@ -162,6 +162,7 @@ toc_sticky: true
 
 - ignore_older 옵션은 인풋 타입이 log인 경우에 사용할 수 있는 옵션이다.
 - 값으로는 10h, 10m 과 같이 타임스트링 형식으로 작성한다. 
+
   ```
   filebeat.inputs:
     - type: log
@@ -170,6 +171,7 @@ toc_sticky: true
         - D:\dev-tools\ElasticStack\elasticsearch-7.10.1\logs\*.log
       ignore_older: 12h
   ```
+
 - 기본 값은 0 으로 특정 값을 입력하지 않으면 파일의 생성/수정과 무관하게 모든 내용을 읽어들인다.
 - 예시 처럼 12h 로 되어 있으면 최근 12시간 전의 로그만 수집하겠다는 옵션이다.
 
@@ -177,6 +179,7 @@ toc_sticky: true
 
 - 파일 비트 수준에서 복잡한 정제 작업을 수행할 수는 없지만 간단한 정제 작업을 비츠에서 처리하면 엘라스틱 서치나 로그스태시에서 처리하는 작업량을 줄일 수 있다. 
 - include_lines는 특정 라인을 정규식 표현식을 이용해 필터링하고 매칭된 라인은 비츠에서 수집하지 않는다. 
+
   ```
   filebeat.inputs:
     - type: log
@@ -187,6 +190,7 @@ toc_sticky: true
       exclude_lines: ['^DBG']
       exclude_files: ['\.gz$']
   ```
+
   - 위의 예시에서는 DBG로 시작하는 로그 라인은 파일 비트 내부에서 버리고, .gz 확장자를 가진 파일을 무시한다.
   - 즉, 특정 폴더 내부에 분석해야 하는 로그 파일과 분석하지 않아도 되는 파일들이 섞여 있을 때 사용한다
 
@@ -213,6 +217,7 @@ toc_sticky: true
 - 모듈은 많이 사용되고 잘 알려진 시스템 데이터를 수집하기 위한 일반적인 설정을 사전에 정의해 둔 것이다. 
 - 모듈을 사용하면 복잡한 가공이 필요한 이벤트인 경우에도 최소한의 비츠 설정으로 손쉽게 로그들을 수집할 수 있다.
 - 파일 비트의 경우 다음과 같은 모듈들을 지원한다.
+
     |모듈|설명|
     |-|-|
     |aws|AWS의 CloudWatch, CloudTrail과 같은 서비스에서 발생하는 로그들을 수집할 수 있다.|
@@ -232,6 +237,7 @@ toc_sticky: true
 
 - 비츠 설정 파일 수정
   - 인풋은 모듈 설정 파일에서 설정하기 때문에 아웃풋만 기존 `filebeat.yml`에 작성한다.
+
     ```
     output.elasticsearch:
       hosts: ["localhost:9200"]
@@ -242,6 +248,7 @@ toc_sticky: true
     filebeat.config.modules:
       path: ${path.config}/modules.d/*.yml
     ```
+
     - `${path.config}` 는 파일 비트가 설치된 경로 
     - 파일 비트 경로 변수
       - path.home : 파일비트 설치 경로 
@@ -261,6 +268,7 @@ toc_sticky: true
   - logstash 모듈은 일반 로그와 스로우 로그 수집을 지원한다. 
   - 로그스태시 실행 중 발생된 대부분의 로그는 일반로그에 속하며 파이프라인 내에서 과도하게 처리 시간이 지연되는 이벤트의 경우 별도의 파일에 슬로우 로그로 기록된다.
   - /modules.d/logstash.yml  설정
+
     ```
     # Module: logstash
     # Docs: https://www.elastic.co/guide/en/beats/filebeat/7.10/filebeat-module-logstash.html
@@ -281,6 +289,7 @@ toc_sticky: true
         # Filebeat will choose the paths depending on your OS.
         #var.paths:
     ```
+
   - 이후 setup 명령을 통해 filebeat를 설정하고 실행한다.
   - 다음 로그스테시를 실행시키면 키바나의 [Filebeat Logstash] Logstash Logs ECS 에 들어가서 확인해 볼 수 있다.
 
@@ -289,6 +298,7 @@ toc_sticky: true
 
 - 모니터링은 비트가 데이터 입출력을 잘하고 있는지 동작중인 호스트의 리소스들은 문제 없는지 등을 엘라스틱서치와 키바나를 통해 확인할 수 있는 기능이다.
 - filebeat.yml 파일 비트 설정 파일에서 모니터링 설정을 추가한다. 
+
     ```
     monitoring.enabled: true
     monitoring.elasticsearch:

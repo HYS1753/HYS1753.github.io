@@ -43,7 +43,7 @@ toc_sticky: true
   - gradle 다운로드
     - [gradle 다운로드](https://gradle.org/releases/)에서 원하는 complete 버전 다운로드
   - STS Workspace 설정
-    - STS를 한번 실행하고 나면 `sts-4.10.0.RELEASE경로/configuration/org.eclipse.ui.ide.prefs`이름의 파일 생성되어 있는데 이를 다음과 같이 변경
+    - STS를 한번 실행하고 나면 `sts-4.10.0.RELEASE경로/configuration/.settings/org.eclipse.ui.ide.prefs`이름의 파일 생성되어 있는데 이를 다음과 같이 변경
     ```
     MAX_RECENT_WORKSPACES=10
     RECENT_WORKSPACES=                      # 사용할 workspace 경로
@@ -66,3 +66,105 @@ toc_sticky: true
         - Gradle distribution - Local installation directory에 다운받은 Gradle 경로 설정
       - Java
         - Code-Style -CodeTemplate 원하는 주석 생성(옵션)
+
+
+- STS 에서 Spring Legacy Project 생성하기
+  - 위의 STS 설치 후 필요시 다음 과정 추가 하기 전 sts4 - Help - eclipse Marketplace - sts 검색 - Spring tools 3 Add-On for Spring tools 4~~ 설치
+  - File - new - Other... - Spring - Spring Legacy Project 생성
+
+    ![Spring Legacy Prject 생성](/assets/images/springlegacy1.PNG){: .align-center}
+
+    - 만역 위와 같이 Template이 나오지 않고 Simple Project만 나올 경우 다음 수행
+      - Configure templates 클릭
+      - spring-data-gemfire와 spring-integeration remove
+      - Apply and Close
+      - Refresh
+
+
+
+
+1. resin 버전 변경 4.0.49 -> 4.0.65
+
+
+2. 각 서버 별 resin.xml 파일에서 다음 확인
+    ```
+    <!-- define the servers in the cluster -->
+        <server id="1" address="211.189.37.202" port="6801" allow-non-reserved-ip="true">
+          <jvm-arg>-DResinSvr=${serverId}</jvm-arg>
+          <jvm-arg>-Xloggc:${resin.home}log/gc-${serverId}-${fmt.timestamp('%Y%m%d%H%M%S')}.log</jvm-arg>
+
+          <!-- The http port -->
+          <http address="*" port="${app.http}"/>
+          <watchdog-port>6601</watchdog-port>
+        </server>
+
+        <server id="2" address="211.189.37.203" port="6801" allow-non-reserved-ip="true">
+          <jvm-arg>-DResinSvr=${serverId}</jvm-arg>
+          <jvm-arg>-Xloggc:${resin.home}log/gc-${serverId}-${fmt.timestamp('%Y%m%d%H%M%S')}.log</jvm-arg>
+
+          <!-- The http port -->
+          <http address="*" port="${app.http}"/>
+          <watchdog-port>6601</watchdog-port>
+        </server>
+    ```
+
+    ```
+    <host id="dbsapp.kyobobook.co.kr" root-directory=".">
+        <web-app id="/" root-directory="/data02/webapps/restapi"/>
+    </host>
+    ```
+
+
+3. 각 서버 별 cluster-default.xml 에서 다음 확인
+
+    ```
+    <host id="dbsapp.kyobobook.co.kr" root-directory=".">
+    ```
+
+
+4. 각 서버 별 /bin/was_start.sh, web_start.sh, was_stop.sh, web_stop.sh 에서 
+
+   - RESIN_HOME = "/data01/resin4"로 변경
+   - RESIN_SERVER_ID=1		# 202는 1, 203은 2로 변경
+
+
+5. 보안 설정 변경(각 서버에 적용)
+
+   - resin.xml 에서 system-property 부분 추가
+
+      ```
+      <!-- For resin.properties dynamic cluster joining -->
+        <home-cluster>${home_cluster}</home-cluster>
+        <home-server>${home_server}</home-server>
+        <elastic-server>${elastic_server}</elastic-server>
+        <elastic-dns>${elastic_dns}</elastic-dns>
+
+        <system-property
+          jdk.tls.ephemeralDHKeySize="2048"
+          jdk.tls.rejectClientInitiatedRenegotiation="true"
+          sun.security.ssl.allowUnsafeRenegotiation="false"
+          sun.security.ssl.allowLegacyHelloMessages="true"/>
+      ```
+
+   - cluster_defualt.xml 부분 다음과 같이 수정
+
+      ```
+      <access-log>
+        <path>${resin.home}/log/access-${server.id}.log</path>
+        <format>%{rlnclientipaddr}i %l %u %t "%r" %s %b "%{Referer}i" "%{Cookie}i" %D</format>
+            <exclude>\.gif$</exclude>
+            <exclude>\.jpg$</exclude>
+            <exclude>\.png$</exclude>
+            <exclude>\.js$</exclude>
+            <exclude>\.css$</exclude>
+            <exclude>\.ico$</exclude>
+            <exclude>\.swf$</exclude>
+        <rollover-cron>00 00 * * *</rollover-cron>
+      </access-log>
+      ```
+
+     - `<format>%h %l %u %t "%r" %s %b "%{Referer}i" "%{Cookie}i" %D</format>` 을
+     - `<format>%{rlnclientipaddr}i %l %u %t "%r" %s %b "%{Referer}i" "%{Cookie}i" %D</format>` 으로 
+변경
+
+
