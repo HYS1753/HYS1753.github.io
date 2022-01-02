@@ -50,12 +50,12 @@ toc_sticky: true
     - 과거에는 px, pt 절대단위를 많이 사용했지만, 모바일 기기까지 고려한 최근에는 상대 크기 단위인 em, rem을 많이 사용한다.(1em = 16px = 12pt)
 
 - font-style 속성
-  - `기본형 font-style: normal | italic | oblique
+  - `기본형 font-style: normal | italic | oblique`
   - 이텔릭체로 바꾸는 속성은 italic, oblique가 있지만 italic은 처음부터 디자인 되어 있고 oblique는 원래 글꼴에서 기울리는 효과를 주기 때문에 대부분의 웹에서 italic 사용한다.
 
 - font-weight 속성
   - 글자의 굵기를 지정하는 속성
-  - `기본형 font-weight: nomal | bold | bolder | ligher | 100 | 200 | _ | 800 | 900
+  - `기본형 font-weight: nomal | bold | bolder | ligher | 100 | 200 | _ | 800 | 900`
 
 ### 1.2 웹 폰트 
 
@@ -129,7 +129,7 @@ toc_sticky: true
   - 세로거리 : 텍스트부터 그림자까지의 세로거리로 필수 속성이다. 양숫값을 글자의 아래쪽, 음숫값은 글자의 왼쪽에 그림자를 만든다.
   - 번짐정도 : 그림자가 번지는 정도이다. 양수값을 사용하면 그림자가 모든 방향으로 퍼져 나가므로 그림자가 크게 표시된다. 반대로 음숫값은 그림자가 모든 방향으로 축소되어 보인다. 기본값은 0
   - 색상 : 그림자 색상을 지정한다. 한가지만 지정할 수도 공백으로 구분해 여러 색상 구별도 가능하다. 기본값은 현재 글자 색이다.
-  - `.shadow { color: red; text-shadow: 1px 1px black}
+  - `.shadow { color: red; text-shadow: 1px 1px black}`
 
 - text-transform
   - 영문자 표기시 텍스트이 대소문자를 원하는대로 바꾸는 속성
