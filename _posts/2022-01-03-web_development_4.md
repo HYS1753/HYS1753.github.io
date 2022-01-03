@@ -478,7 +478,7 @@ toc_sticky: true
 - **background-position**
   - 배경 이미지의 수평 또는 수직 위치의 값을 지정할 수 있다.,
   - `기본값 background-position: <수평위치> <수직위치>;`
-  - `수평 수직위치: left | center | right | <백분율> | <길이 값>
+  - `수평 수직위치: left | center | right | <백분율> | <길이 값>`
 
 - **background-attachment**
   - 배경이미지가 있는 웹 문서를 웹 브라우저에서 열고 스크롤 막대를 위아래로 조절하면 문서 전체가 움직이므로 배경이미지도 같이 움직이게 된다. 
