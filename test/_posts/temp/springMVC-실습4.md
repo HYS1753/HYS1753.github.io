@@ -1,0 +1,136 @@
+---
+author_profile: true
+date: 2022-01-01
+title: "Spring MVC + Gradle Project 3"
+categories: 
+    - Spring
+tag: 
+    - Java
+    - Spring
+    - SpringMVC
+
+# 목차
+toc: true  
+toc_sticky: true 
+# sidebar:
+#  nav: "docs"
+---
+
+# Spring MVC + Gradle Project 3 (DB 사용)
+
+---
+
+## 0. Data Access Layer(Spring-Java)
+
+```
+Application       JDBC Interface          JDBC Implementations        Persistence Layer
+
+    DAO     →     JDBC Template      →      JDBC Driver          →        Database
+                        ↓
+                    Data Source(Configuration for connection)
+```
+### **JPA(Java Persistence API)**
+자바 ORM 기술에 대한 표준 명세로 JAVA에서 제공하는 API이다. 스프링에서 제공하는 API가 아니다.</p>
+JPA는 특정 기능을 하는 라이브러리가 아닌 인터페이스이며, orm을 사용하기 위해 만들어진 인터페이스이다.</p>
+ORM이기 때문에 Java 클래스와 DB 테이블을 매핑한다.(SQL을 매핑하는 것이 아님.)</p>
+JPA는 어플리키에션과 JDBC 사이에서 동작하며, 개발자가 JPA를 사용하면 JPA 내부에서 JDBC API를 사용하여 SQL을 호출해 DB와 통신한다.</p>
+
+- JPA 특징
+  - 데이터를 객체지향적으로 관리할 수 있기 때문에 개발자는 비지니스 로직에 집중할 수 있고 객체 지향 개발이 가능하다.
+  - 자바 객체와 DB 테이블 사이의 매핑 설정을 통해 SQL을 생성한다.
+  - 객체를 통해 쿼리를 작성할 수 있는 JPQL(Java Persistence Query Language)를 지원한다.
+  - JPA는 성능 향상을 위해 지연로딩이나 즉시로딩과 같은 몇가지 기법을 제공하는데 이것을 잘 활용하면 SQL을 직접 사용하는 것과 유사한 성능을 발휘할 수 있다.
+
+- Spring에서의 JPA 구조
+  - Client ↔ `<DTO>` ↔ Controller(Servlet) ↔ `<DTO>` ↔ Service ↔ `<DTO>` ↔ Repository(DAO) ↔ `<Entity class>` ↔ DB
+  - **Entity(Domain)**
+    - DB의 테이블에 존재하는 Column들을 필드로 가지는 객체를 말한다. 
+    - Entity는 DB의 테이블과 1:1로 대응되며, 따라서 테이블이 가지지 않는 컬럼을 필드로 가져서는 안된다.
+    - 또한, Entity 클래스는 다른 클래스를 상속받거나 인터페이스의 구현체여서는 안된다.
+
+  - **DAO(Data Access Object)**
+    - DAO는 실제로 DB에 접근하는 객체이다. 
+    - Service와 DB를 연결하는 고리의 역할을 한다.
+    - DAO는 개발자가 직접 코딩해야 되는 부분이다. (SQL을 이용해 DB에 접근한 후 적절한 CRUD API 제공한다.)
+    - "Object"단위 - (SQL을 이용한 CRUD) - DB의 "Recode" 단위로 저장한다.
+      - 따라서 Object와 Recode간의 불일치가 발생할 수 있으며 이러한 문제는 개발자가 해결해야 한다.
+
+  - **DTO(Data Transfer Object)**
+    - 계층간 데이터 교환을 위한 객체(Java Bean)이다.
+    - DB에서 데이터를 얻어 Service나 Controller 등으로 보낼 때 사용하는 객체를 말한다.
+    - 로직을 가지고 있지 않은 순수한 데이터 객체이며, getter/setter 메서드만 가지고 있다.
+    - 하지만, DB에서 꺼낸 값을 임의로 변경할 필요가 없기 때문에 DTO 클래스에는 setter가 없고 생성자에서 값을 할당한다.
+    - `Service(Business Tier) ↔ Controller(Presentation Tier)`
+
+  - **VO(Value Object)**
+    - 말 그대로 값 객체 라는 의미를 가지고 있으며 VO의 핵심 역할을 equals(), hashcode()를 오버라이딩 하는 것이다.
+    - VO 내부에 선언된 속성(Field)의 모든 값들이 VO 객체 마다  값이 같아야 똑같은 객체라고 판별한다.
+    - VO는 getter, setter를 가질 수 있으며, 테이블 내에 있는 속성 외에 추가적인 속성을 가질 수 있으며, 여러 테이블에 대한 공통 속성을 모아 만든 BaseVO클래스를 상속받아 사용할 수 있다.
+    - VO는 DTO와 동일한 개념이지만 read only 속성을 갖는다.
+    - VO는 특정한 비지니스 값을 담는 객체이고 DTO는 Layer간 통신 용도로 오고가는 객체를 의미한다.
+    - `Service(Business Tier) ↔ Controller(Presentation Tier)`
+
+  - **Entity vs DTO**
+    - Entity와 DTO를 분리하는 이유는 Entity의 값이 변하면 Repository 클래스의 Entity Manager의 flush가 호출될 때 DB에 값이 반영되고, 이는 다른 로직들에게로 영향을 미치기 때문
+    - 즉, DTO는 View와 통신을 하면서 필연적으로 데이터의 변경이 빈번히 일어나기 때문에 DTO 클래스를 분리해 일관성을 유지한다.
+
+
+  - **VO vs DTO**
+    - VO와 DTO는 Data를 전달하는 객체로 동일한 개념이지만 VO는 좀 더 특정한 Business Logic의 결과 값을 담는 객체이다.
+    - equals, hashCode Method를 구현하여 특정 중요한 Data를 전달할 때는 VO를 생성하여 이를 동일한 객체 비교까지 필요한 Logic 내에서 주로 사용한다.
+    - DTO는 Layer간 단순 통신 용도로 오고가는 Data 전달 객체이다. 조금 더 포괄적으로 제한 없이 사용할 수 있는 객체로 민감하지 않거나 해당 객체 안의 값들을 통해 동일한 객체임을 비교하는 로직에 사용되지 않을 때는 단순히 DTO 만 사용해도 된다.
+
+- ORM vs SQL Mapper
+  - ORM은 DB 테이블을 자바 객체로 매핑함으로써 객체간의 관걔를 바탕으로 SQL을 자동으로 생성하지만, Mapper는 SQL을 명시해 주어야 한다.
+  - ORM은 RDB의 관계를 Object에 반영하는 것이 목적이라면, Mapper는 단순히 필드를 매핑시키는 것이 목적이라는 점에서 지향점의 차이점이 있다.
+  - ORM(Object-Relation Mapping/객체-관계-매핑)
+    - DB데이터 ← mapping → Object 필드
+      - 객체를 통해 간접적으로 DB를 다룬다.
+    - 객체와 DB의 데이터를 자동으로 매핑해준다.
+      - SQL쿼리가 아니라 메서드로 데이터를 조작할 수 있다.
+      - 객체간 관계를 바탕으로 SQL을 자동으로 생성한다.
+    - Persistant API라 할 수 있다. 
+    - Ex. JPA, Hibernate
+  - SQL Mapping
+    - SQL ← mapping → Object 필드
+    - SQL 문으로 직접 DB를 조작한다.
+    - Ex. Mybatis, jdbcTemplate
+
+### **Mybatis**
+
+객체지향 언어인 자바의 관계형 DB 프로그래밍을 보다 쉽게 도와주는 프레임워크이다. </p>
+즉, Mybatis는 JDBC를 보다 편하게 사용하기 위해 개발된 SQL Mapper 방식의 프레임워크이다. 
+
+- Mybatis 특징
+  - **SQL문이 코드로부터 완전히 분리된다.**
+    - 기존에는 DAO 파일에 모든 SQL문을 작성하였다. 하지만 Mybatis에서는 Mapper파일에 SQL코드를 입력해 놓고 DAO파일에서 필요할 대마다 가져와서 사용할 수 있다.
+    - XML, 어노테이션 방식으로 SQL 문을 별도로 처리하는 작업이 가능하고, 필요한 경우 두가지 방식을 혼용해서 사용하는 것도 가능하다.
+    - 예로는 복잡하고 긴 쿼리의 경우 xml 사용 짧고 간단한 쿼리는 어노테이션 사용 
+  - **생산성**
+    - 간결한 코드 처리가 가능하다.
+    - JDBC작업을 위한 반복적인 코드(Try~Catch~Finally, PreparedStatement, ResultSet)을 직접 작성하지 않아도 된다.
+  - **Spring과의 연동으로 자동화된 처리**
+    - 스프링과 Mybatis를 연계하는 Mybatis-Spring 라이브러리를 이용하면 개발자는 직접 SQL문의 호출 없이도 원하는 결과를 얻을 수 있다.
+    - 이 때문에 Mybatis는 단독으로 사용하는 것 보다는 Spring과 연계해서 사용하는 편이 오히려 코드의 양을 줄일 수 있다.
+  - **유지보수성 향상(동적 SQL을 이용한 제어 기능)**
+    - Mapper 파일에만 SQL코드를 입력하고 나중에 SQL 코드를 변경할 때 이곳에서만 유지보수하면 DAO에서는 아무런 영향이 없다.
+    - Mybatis는 기본적으로 SQL문을 처리하지만, 약간의 제어문이나 loop문을 사용할 수 있따. 이를 통해 SQL 과 관련된 처리를 java코드에서 분리할 수 있다.
+
+- Mybatis 구성
+  - **Mybatis 환경설정 파일**
+    - SqlSessionConfig.xml
+    - Mybatis가 JDBC코드를 실행하는데 필요한 전반에 걸친 설정을 한다.
+    - TypeAlias 설정: 사용할 모델 클래스에 대한 별칭 설정
+    - Environment 설정: Database 접속 설정
+    - Mapper 설정: Mapper 설정파일 등록
+  - **Mybatis Mapper 설정 파일**
+    - sql문과 관련된 설정을 하는 파일로 Mybatis 설정파일에 등록해 사용한다.
+    - 주요 구성요소
+      - SQL문 등록 태그(Parameter, Result, SQL문)
+      - select 결과 처리 설정(Resultmap)
+## 0. Mybatis
+
+- 간결한 코드 처리: JDBC작업을 위한 반복적인 코드(Try~Catch~Finally, PreparedStatement, ResultSet)을 직접 작성하지 않아도 된다.
+- SQL 문 분리 운영 : XML또는 Annotation 방식으로 SQL문을 별도로 처리하는 작업이 가능하다.
+- Spring과 연동으로 자동화된 처리 : Mybatis-Spring라이브러리를 이용하여 직접 SQL 문 호출 없이도 원하는 결과 얻을 수 있다.
+- 동적 SQL을 이용한 제어 기능: 제어문이나 반복문 등의 처리 기능을 통해 SQL과 관련된 처리를 JAVA코드에서 분리할 수 있다.

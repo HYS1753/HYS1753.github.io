@@ -58,6 +58,8 @@ toc_sticky: true
 ## 3. 프로젝트 구조 정의
 
 - 단순한 api 호출을 위한 프로젝트의 구성이며, 추후에 기능을 추가하거나 사용자의 편의대로 수정해도 된다.
+- 여기서 src/main/resources/config/spring 부분에 하위 디렉터리로 dev, local 등으로 구조를 정의 했는데 이는 개발시 다양한 환경에서 테스트 및 배포를 할때 config값을 다르게 주기 위함이다. 
+- 이에 대한 설정은 **9. Tomcat 연동** 부분의 `VM arguments : -Dspring.profiles.active="foo"`를 통해 설정해 줄 수 있으며 관련 Setting은 **5. web.xml 설정**을 통해 진행한다.
 
 ![New Gradle Project](/assets/images/springmvc7.PNG){: .align-center}
 
@@ -147,6 +149,7 @@ war {
 ## 5. web.xml 설정
 
 - WAS 에서 Spring 프로젝트를 실행시키면 webapp/WEB-INF/web.xml 을 가장 먼저 참조하게 되며, 서블릿을 생성하게 된다.
+- spring.profiles.active는 서버의 환경변수(VM arguments)로 등록 또는 build.gradle 등 다양한 위치에서 정의할 수 있으며 해당 프로젝트에서는 서버(Tomcat)에서 정의하도록 한다.**(9.Tomcat 연동 참조)**
 
 ### **Servlet**
 
