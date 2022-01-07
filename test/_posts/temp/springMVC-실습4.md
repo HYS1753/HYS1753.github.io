@@ -29,7 +29,7 @@ Application       JDBC Interface          JDBC Implementations        Persistenc
                         ↓
                     Data Source(Configuration for connection)
 ```
-### **JPA(Java Persistence API)**
+##  **1. JPA(Java Persistence API)**
 자바 ORM 기술에 대한 표준 명세로 JAVA에서 제공하는 API이다. 스프링에서 제공하는 API가 아니다.</p>
 JPA는 특정 기능을 하는 라이브러리가 아닌 인터페이스이며, orm을 사용하기 위해 만들어진 인터페이스이다.</p>
 ORM이기 때문에 Java 클래스와 DB 테이블을 매핑한다.(SQL을 매핑하는 것이 아님.)</p>
@@ -96,7 +96,7 @@ JPA는 어플리키에션과 JDBC 사이에서 동작하며, 개발자가 JPA를
     - SQL 문으로 직접 DB를 조작한다.
     - Ex. Mybatis, jdbcTemplate
 
-### **Mybatis**
+## **2. Mybatis - SQL Mapping**
 
 객체지향 언어인 자바의 관계형 DB 프로그래밍을 보다 쉽게 도와주는 프레임워크이다. </p>
 즉, Mybatis는 JDBC를 보다 편하게 사용하기 위해 개발된 SQL Mapper 방식의 프레임워크이다. 
@@ -128,9 +128,98 @@ JPA는 어플리키에션과 JDBC 사이에서 동작하며, 개발자가 JPA를
     - 주요 구성요소
       - SQL문 등록 태그(Parameter, Result, SQL문)
       - select 결과 처리 설정(Resultmap)
-## 0. Mybatis
 
-- 간결한 코드 처리: JDBC작업을 위한 반복적인 코드(Try~Catch~Finally, PreparedStatement, ResultSet)을 직접 작성하지 않아도 된다.
-- SQL 문 분리 운영 : XML또는 Annotation 방식으로 SQL문을 별도로 처리하는 작업이 가능하다.
-- Spring과 연동으로 자동화된 처리 : Mybatis-Spring라이브러리를 이용하여 직접 SQL 문 호출 없이도 원하는 결과 얻을 수 있다.
-- 동적 SQL을 이용한 제어 기능: 제어문이나 반복문 등의 처리 기능을 통해 SQL과 관련된 처리를 JAVA코드에서 분리할 수 있다.
+- 일반적인 스프링 웹 프로젝트의 구성
+  - Presentation Layer : UI를 담당하는 구성요소들이 들어간다. 웹인지 앱인지에 따라 사용되는 기술이 변경된다.
+  - Business Layer : 서비스 계층이라고도 하며, 고객의 요구사항을 반영하는 계층이다. 사용자의 환경이 아닌 기능적인 요구사항을 구현한 곳으로 즉, 비지니스 계층은 어떤 형태의 데이터가 필요하고 반환될 것인지 결정
+  - Data Access Layer : 흔히 Persistence Layer라고도 불리며 데이터 처리를 전문으로 담당하는 계층이다. 
+
+## **3. Mybatis 설정 및 사용**
+
+1. build.gradle 수정
+  
+  ```
+  // commons-dbcp : Java Apache Commons Database Connection Pool
+  //			      Connection pool(연결 풀) 사용 목적은 DB Connection 정보를 캐시(메모리 영역)에 저장/관리하여 애플리케이션 단에서  
+  //                DB Connection 정보가 필요할 때마다 Connection pool에서 연결 정보를 가지고 와 사용하도록 하는 것이다. 
+  //                connection pool에서 Connection 정보를 관리하기 때문에 DB에 연결하기 위한 연결 정보 생성 시간이 없어 DB Connection을 위한 시간이 월등히 줄어든다. 
+  //				  버전 별 요구 사항.
+  // 				  DBCP 2.9.0 compiles and runs under Java 8 only (JDBC 4.2)
+  // 				  DBCP 2.8.0 compiles and runs under Java 8 only (JDBC 4.2)
+  // 				  DBCP 2.7.0 compiles and runs under Java 8 only (JDBC 4.2)
+  // 				  DBCP 2.6.0 compiles and runs under Java 8 only (JDBC 4.2)
+  // 				  DBCP 2.5.0 compiles and runs under Java 8 only (JDBC 4.2)
+  // 				  DBCP 2.4.0 compiles and runs under Java 7 only (JDBC 4.1)
+  // 				  DBCP 1.4 compiles and runs under Java 6 only (JDBC 4)
+  // 				  DBCP 1.3 compiles and runs under Java 1.4-5.0 only (JDBC 3)
+  
+  dependencies {
+    // mybatis 연동위한 모듈 import
+    compile "org.mybatis:mybatis:3.5.7"
+    compile "org.mybatis:mybatis-spring:2.0.6" // Spring과 Mybatis 를 연결해주는 프레임워크
+    compile "org.springframework:spring-jdbc:5.3.10" // Spring 용 JDBC
+    complie "org.apache.commons:commons-dbcp2:2.9.0" // DataBase Connection Pool
+    compile "org.postgresql:postgresql:42.2.22"		// PostgreSQL JDBC Driver
+  }
+  ```
+
+2. PostgreSQL과 연결을 담당하는 DataSource 설정
+   1. 스프링과 Mybatis를 같이 사용하는 경우에는 주로 스프링의 설정으로 JDBC 연결을 처리하려는 경우가 많기 때문에 위에서 추가한 spring-jdbc 모듈의 클래스를 이용해 applicationContext.xml에 다음과 같이 datasource를 추가한다.
+   2. DataSource에는 JDBC의 커넥션을 처리하는 기능을 가지고 있기 때문에 DB와 연동 작업에 반드시 필요하다.
+   3. 다음은 DataSource 설정하는 코드이며 `${spring.profiles.active}`부분은 WAS(Tomcat, Resin) 등에서 `-DSpring.profiles.active`를 통해 설정해준 변수이다. 이와 같이 활성 상태를 변경하는 이유는 개발, 운영, 로컬 등의 다양한 환경에서 프로젝트르 실행시키기 위함이다.
+   4. `/resource/config/properties/${spring.profiles.active}/dataSource.xml` 생성 및 작성
+
+      ```
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+      <properties>
+        <entry key="jdbc.postgresql.driverClassName">org.postgresql.Driver</entry>
+        <entry key="jdbc.postgresql.url">jdbc:postgresql://127.0.0.1:5432/springmvc</entry>
+        <entry key="jdbc.postgresql.username">testuser</entry>
+          <entry key="jdbc.postgresql.password">testuser</entry>
+      </properties>
+      ```
+
+   5. `/resource/config/spring/${spring.profiles.active}/context-datasource.xml` 생성 및 작성
+      
+      ```
+      <?xml version="1.0" encoding="UTF-8"?>
+      <beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:util="http://www.springframework.org/schema/util"
+            xmlns:jee="http://www.springframework.org/schema/jee"
+            xmlns:context="http://www.springframework.org/schema/context"
+            xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
+                        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd">
+        
+        <!-- Database의 URL, PW, USER 등의 정보가 저장된 datasource.xml파일을 불러옴. -->
+        <util:properties id="datasourcProperties" location="classpath*:/config/properties/${spring.profiles.active}/datasource.xml" />
+        
+        <!-- PostgreSQL용 DataSource Bean 생성 -->
+        <!-- Class 는 common-dbcp를 사용해 해당하는 properties를 통해 connection pool을 만든다. -->
+        <bean id="dataSourcePostgre" class="org.apache.commons.dbcp2.BasicDataSource">
+          <property name="driverClassName" value="#{datasourcProperties['jdbc.postgresql.driverClassName']}"/>
+          <property name="url" value="#{datasourcProperties['jdbc.postgresql.url']}"/>
+          <property name="username" value="#{datasourcProperties['jdbc.postgresql.username']}"/>
+          <property name="password" value="#{datasourcProperties['jdbc.postgresql.password']}"/>		
+        </bean>
+      </beans>
+      ```
+
+3. DataSource 테스트 진행
+   1. 스프링은 하나의 설정에 문제가 있다면 정상적으로 로딩이 되지 않기 때문에 최대한 빨리 변경된 설정에 대해서 테스트를 진행해야만 한다.
+   2. 스프링은 별도의 test라이브러리를 활용해 개발자가 손쉽게 테스트 할 수 있는 방법을 제시해 준다.
+   3. src/test/java/Gradle_SpringMVC/ 디렉터리 아래 testDataSource.java 파일을 만들어준다.
+   4. testDataSource.java에 사용될 인스턴스 변수를 자동으로 생성해주는 @inject 어노테이션 모듈을 사용하기위해 build.gradle에 다음과 같은 모듈을 추가해 준다.
+
+      ```
+      dependencies {
+        compile "javax.inject:javax.inject:1"
+      }
+
+
+
+4. Mybatis 연결
+   1. DataSource의 연결은 MyBatis의 설정과 관계가 있으므로 설정해 주어야 한다.
