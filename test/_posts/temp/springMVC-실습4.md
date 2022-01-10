@@ -216,10 +216,130 @@ JPA는 어플리키에션과 JDBC 사이에서 동작하며, 개발자가 JPA를
 
       ```
       dependencies {
-        compile "javax.inject:javax.inject:1"
+        // test 
+        compile "javax.inject:javax.inject:1"   // java 파일에 사용될 인스턴스 변수를 자동으로 생성해주는 @Inject 어노테이션 모듈 추가
+        compile "junit:junit:4.13.2"			// Unit TEST 프레임워크
+        compile "org.springframework:spring-test:5.3.10"	// Spring Framework test 도구
       }
+   5. testDataSource.java 작성
+
+      ```
+      package Gradle_SpringMVC;
+
+      import java.sql.Connection;
+
+      import javax.inject.Inject;
+      import javax.sql.DataSource;
+
+      import org.junit.Test;
+      import org.junit.runner.RunWith;
+      import org.springframework.test.context.ContextConfiguration;
+      import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+      import org.springframework.test.context.web.WebAppConfiguration;
 
 
+      @WebAppConfiguration
+      // @RunWith 어노테이션은 현재 테스트 코드를 실행할 때 스프링이 로딩되도록 하는 부분이다.
+      @RunWith(SpringJUnit4ClassRunner.class)
+      // @ContextConfiguration 어노테이션은 locations 속성 경로의 xml 파일을 이용해서 스프링이 로딩되도록 한다.
+      @ContextConfiguration(locations = {"classpath:config/spring/dev/context-datasource.xml"})
+      public class testDataSource {
+        
+        // @Inject 어노테이션 처리된 DataSource를 스프링이 생성해서 주입해 주도록 해 개발자가 객체 생성 혹은 다른 작업을 하지 않도록 도와준다.
+        @Inject
+        private DataSource ds;
+        
+        @Test
+        public void testConnection() throws Exception {
+          try {
+            Connection con = ds.getConnection();
+            System.out.println(con);
+          }catch (Exception e){
+            e.printStackTrace();
+          }
+        }
+
+      }
+      ```
+
+   6. 실행 방법 : 해당 java 파일 우클릭 후 run as - JUnit test 클릭
+   7. 출력 결과 : `1489946715, URL=jdbc:postgresql://127.0.0.1:5432/springmvc, PostgreSQL JDBC Driver` 연동 확인
+   8. 만약 오류 발생 시 dataSource.xml 파일이 spring.profiles.active 설정 때문일 수도 있기 때문에 해당하는 경로로 직접 입력해준다. 
 
 4. Mybatis 연결
-   1. DataSource의 연결은 MyBatis의 설정과 관계가 있으므로 설정해 주어야 한다.
+   1. DataSource의 연결은 Mybatis의 설정과 관계가 있으므로 먼저 설정하고 테스트를 진행해 보아야 한다.
+   2. 위에서 테스트 결과가 정상적으로 설정되었다면 이후의 작업은 Mybatis와 MySQL을 연동시키는 작업이다.
+   3. SqlSessionFactory 객체 설정
+      1. Mybatis와 스프링 연동 작업에서의 핵심은 connection을 생성하고 처리하는 SqlSessionFactory의 존재이다.
+      2. SqlSessionFactory는 데이터베이스와의 연결과 SQL의 실행에 대한 모든 것을 가진 중요한 객체이다.
+      3. 스프링을 이용할 때 SqlSessionFactory를 생성해 주는 특별한 객체를 설정해 주는데 SqlSessionFactoryBean이라는 클래스이다.
+   4. `/resource/config/spring/${spring.profiles.active}/context-mapper-postgre.xml` 파일 생성 후 작성
+
+      ```
+      <?xml version="1.0" encoding="UTF-8"?>
+      <beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:tx="http://www.springframework.org/schema/tx"
+            xmlns:jee="http://www.springframework.org/schema/jee"
+            xmlns:p="http://www.springframework.org/schema/p"
+            xmlns:aop="http://www.springframework.org/schema/aop"
+            xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                                http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd
+                                http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+                                http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+                                
+        <!-- org.mybatis.spring.SqlSessionFactoryBean 는 mybatis-spring 모듈에 있는 클래스 이다. -->
+        <bean id="dataPostgreSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+          <property name="dataSource" ref="dataSourcePostgre"/>
+        </bean>
+
+      </beans>
+      ```
+
+5. Mybatis 연결 테스트
+   1. 3번의 DataSource 테스트와 마찮가지로 같은 위치에 다음과 같은 testMybatis.java 파일을 생성 및 작성하고 테스트를 진행한다.
+
+      ```
+      package Gradle_SpringMVC;
+
+      import javax.inject.Inject;
+
+      import org.apache.ibatis.session.SqlSession;
+      import org.apache.ibatis.session.SqlSessionFactory;
+      import org.junit.Test;
+      import org.junit.runner.RunWith;
+      import org.springframework.test.context.ContextConfiguration;
+      import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(locations = {"classpath:config/spring/dev/context-mapper-postgre.xml", "classpath:config/spring/dev/context-datasource.xml"})
+      public class testMybatis {
+        @Inject
+        private SqlSessionFactory sqlSessionFactory;
+        
+        @Test
+        public void testFactory() {
+          System.out.println(sqlSessionFactory);
+        }
+        
+        @Test
+        public void testSession() throws Exception{
+          try {
+            SqlSession sqlSession = sqlSessionFactory.openSession();
+            System.out.println(sqlSession);
+          }catch (Exception e){
+            e.printStackTrace();
+          }
+        }
+        
+      }
+      ```
+  
+   2. 출력결과가 다음과 같이 나온다면 정상적으로 DB와 Session이 이루어 진 것이다.
+
+      ```
+      org.apache.ibatis.session.defaults.DefaultSqlSessionFactory@35342d2f
+      org.apache.ibatis.session.defaults.DefaultSqlSession@7159a5cd
+      ```
+
+https://baessi.tistory.com/10
