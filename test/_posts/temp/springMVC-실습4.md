@@ -1,7 +1,7 @@
 ---
 author_profile: true
 date: 2022-01-01
-title: "Spring MVC + Gradle Project 4"
+title: "Spring MVC + Gradle Project 4 (DB 사용 1)"
 categories: 
     - Spring
 tag: 

@@ -1,7 +1,7 @@
 ---
 author_profile: true
 date: 2022-01-01
-title: "Spring MVC + Gradle Project 6"
+title: "Spring MVC + Gradle Project 6 (MessageSource 설정)"
 categories: 
     - Spring
 tag: 
@@ -139,24 +139,54 @@ package com.mybatis_postgre.common.utils;
 
 import java.util.Locale;
 
+import javax.annotation.Resource;
+
 import org.springframework.context.support.MessageSourceAccessor;
 
 public class MessageAccessUtil {
 	
-	private static MessageSourceAccessor msAcc = null;
+	@Resource(name="messageSourceAccessor")
+	private MessageSourceAccessor msAcc;
 	
 	public void setMessageSourceAccessor(MessageSourceAccessor msAcc) {
-		MessageAccessUtil.msAcc = msAcc;
+		this.msAcc = msAcc;
 	}
 	
-	public static String getMessage(String code) {
-		return msAcc.getMessage(code, Locale.getDefault());
+	public String getMessage(String code) {
+		try {
+			return msAcc.getMessage(code);
+		}catch(org.springframework.context.NoSuchMessageException nsme) {
+			Locale locale = Locale.getDefault();
+			return msAcc.getMessage(code, locale);
+		}
 	}
 	
-	public static String getMessage(String code, Object[] objects) {
-		return msAcc.getMessage(code, objects, Locale.getDefault());
+	public String getMessage(String code, Locale locale) {
+		try {
+			return msAcc.getMessage(code, locale);
+		}catch(org.springframework.context.NoSuchMessageException nsme) {
+			nsme.printStackTrace();
+			return "";
+		}
 	}
-
+	
+	public String getMessage(String code, Object[] objs) {
+		try {
+			return msAcc.getMessage(code, objs);
+		} catch(org.springframework.context.NoSuchMessageException nsme) {
+		    nsme.printStackTrace();
+		    return "";
+		}
+	}
+	
+	public String getMessage(String code, Object[] objs, Locale locale) {
+		try {
+			return msAcc.getMessage(code, objs, locale);
+		} catch(org.springframework.context.NoSuchMessageException nsme) {
+			nsme.printStackTrace();
+			return "";
+		}
+	}
 }
 ```
 
@@ -187,8 +217,16 @@ public class DictionaryController {
 
     @RequestMapping(value="/test5", method=RequestMethod.GET)
 	public void test5() throws Exception{
-		System.out.println("error.common: "+MessageAccessUtil.getMessage("error.common"));
-		System.out.println("error.minlength: " + MessageAccessUtil.getMessage("error.minlength", new String[] {"테스트글자", "2"}));
+        String message = "";
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		HttpSession session = request.getSession();
+		ServletContext conext = session.getServletContext();
+		WebApplicationContext wContext = WebApplicationContextUtils.getWebApplicationContext(conext);
+		MessageAccessUtil messageUtil = (MessageAccessUtil) wContext.getBean("message");
+		message = messageUtil.getMessage("error.common");
+		System.out.println(message);
+        message = messageUtil.getMessage("error.minlength", new String[] {"테스트글자", "2"});
+		System.out.println(message);
 	}
 ```
 
@@ -196,7 +234,6 @@ public class DictionaryController {
 - 출력
 
 ```
-
-다음 정리
-
-https://devks.tistory.com/40?category=709595
+오류가 발생했습니다.
+테스트글자은 2자 이상의 문자를 입력하셔야 합니다.
+```

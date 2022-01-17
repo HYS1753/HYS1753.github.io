@@ -1,7 +1,7 @@
 ---
 author_profile: true
 date: 2022-01-01
-title: "Spring MVC + Gradle Project 3"
+title: "Spring MVC + Gradle Project 3 (lombok 사용)"
 categories: 
     - Spring
 tag: 

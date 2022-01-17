@@ -1,7 +1,7 @@
 ---
 author_profile: true
 date: 2022-01-01
-title: "Spring MVC + Gradle Project 1"
+title: "Spring MVC + Gradle Project 1 (프로젝트 생성)"
 categories: 
     - Spring
 tag: 

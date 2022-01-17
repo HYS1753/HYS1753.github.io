@@ -1,7 +1,7 @@
 ---
 author_profile: true
 date: 2022-01-01
-title: "Spring MVC + Gradle Project 2"
+title: "Spring MVC + Gradle Project 2 (Logger 사용)"
 categories: 
     - Spring
 tag: 
@@ -16,7 +16,7 @@ toc_sticky: true
 #  nav: "docs"
 ---
 
-# Spring MVC + Gradle Project 2 (Logger 사용)
+# Spring MVC + Gradle Project 2 (Log4j2)
 
 ---
 
@@ -310,7 +310,7 @@ public class MainController {
 
 ## 4. 추가사항
 
-- src/main/resources 디렉토리는 src/main/java와 마찬가지로 calsspath: 로 복사가 되낟. 
+- src/main/resources 디렉토리는 src/main/java와 마찬가지로 calsspath: 로 복사가 된다. 
 - 즉, WEB-INF/classes로 디렉토리로 복사가 되는데 
 - log4j2라이브러리가 기본적으로 설정파일을 classpath:에서 읽도록 프로그래밍 되어 있기 때문에 
 - 그냥 src/main/resources 에 log4j2 설정파일을 두게 된다면 자동으로 설정되기 때문에 따로 web.xml에 정의할 필요가 없으며, 자동으로 로그가 출력된다.
@@ -326,3 +326,208 @@ public class MainController {
   <param-value>/WEB-INF/config/log4j.xml</param-value>
   </context-param>
 ```
+
+
+## 5. log4jdbc-log4j2 사용하기
+
+DB 관련한 로그를 보다 보기 쉽게 로그로 남겨주는 라이브러리 
+이후의 실습 4, 5를 통해 DB 연결 한 후 해당 설정을 통해 DB 관련 logging을 할 수 있다.
+
+### **build.gradle 추가**
+
+```
+// log4jdbc-log4j
+	compile "org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16"
+```
+
+### **resources 디렉터리 바로아래(log4j2.xml 위치에) log4jdbc.log4j2.properties 파일생성**
+
+```
+# slf4를 사용하기 위함.
+log4jdbc.spylogdelegator.name=net.sf.log4jdbc.log.slf4j.Slf4jSpyLogDelegator
+# 출력할 최대 라인 수 0은 무제한
+log4jdbc.dump.sql.maxlinelength = 0
+
+```
+
+### **log4j2.xml 수정 및 추가**
+
+```
+<Appenders>
+  ...
+  <!-- Console에 출력 -->
+  <Console name="console" target="SYSTEM_OUT">
+    <PatternLayout pattern="${LOG_PATTERN}"/>
+  </Console>
+</Appenders>
+
+<loggers>
+  <!-- DB 관련 로거 등록 -->
+  <!-- 열러있는 모든 번호와 연결 수립 및 해제 이벤트 로깅(connection Pool 설정 시 사용) -->
+	<logger name="jdbc.connection" level="OFF" additivity="false">
+		<appender-ref ref="console"/> 
+	</logger>
+		
+	<!-- ResultSet을 제외한 모든 JDBC 호출 정보를 로깅한다. -다량의 로그 생성되므로 JDBC 추적 이외에는 사용 자제 -->
+	<logger name="jdbc.audit" level="OFF" additivity="false"> 
+		<appender-ref ref="console"/> 
+	</logger> 
+	    
+	<!-- ResultSet을 포함한 모든 JDBC 호출 정보를 로그로 남긴다. - 다량의 로그 생성되므로 JDBC 추적 이외에는 사용 자제 -->
+	<logger name="jdbc.resultset" level="OFF" additivity="false">
+		<appender-ref ref="console"/> 
+	</logger>
+		
+	<!-- SQL 문만 로그로 남기며 PreparedStatement일 경우 관련된 argumnet 값으로 대체된 SQL표시 -->
+	<logger name="jdbc.sqlonly" level="INFO" additivity="false"> 
+		<appender-ref ref="console"/> 
+	</logger>
+
+	     
+	<!-- SQL 결과 조회된 데이터의 테이블 로깅 -->
+	<logger name="jdbc.resultsettable" level="INFO" additivity="false"> 
+		<appender-ref ref="console"/> 
+	</logger> 
+
+		
+	<!-- SQL 문과 해당 SQL 실행시키는데 수행된 시간 정보 로깅 -->
+	<logger name="jdbc.sqltiming" level="OFF" additivity="false">
+		<appender-ref ref="console"/> 
+	</logger>
+
+</loggers>
+```
+
+### **jdbc 연결**
+
+|logger name|설명|
+|-|-|
+|jdbc.connection|열려있는 모든 번호와 연결 수립 및 해제 이벤트를 기록. 이는 연결 문제를 찾아내는데 매우 유용 (Connection Pool 설정)|
+|jdbc.audit|ResultSet을 제외한 모든 JDBC 호출 정보를 로그로 남긴다. 많은 양의 로그가 생성되므로 특별히 JDBC 문제를 추적해야 할 필요가 있는 경우를 제외하고는 사용을 권장하지 않는다.|
+|jdbc.resultset|ResultSet을 포함한 모든 JDBC 호출 정보를 로그로 남기므로 매우 방대한 양의 로그가 생성된다.|
+|jdbc.sqlonly|SQL문만을 로그로 남기며, PreparedStatement일 경우 관련된 argument 값으로 대체된 SQL문이 보여진다. (원래는 ? 로 표시되는데, log4j 덕분에 완전한 쿼리로 보여지는 것임)|
+|jdbc.resultsettable|	SQL 결과 조회된 데이터의 table을 로그로 남긴다.|
+|jdbc.sqltiming|SQL문과 해당 SQL을 실행시키는데 수행된 시간 정보(milliseconds)를 포함한다.|
+
+### **datasource.xml 수정**
+
+```
+ASIS
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<entry key="jdbc.postgresql.driverClassName">org.postgresql.Driver</entry>
+	<entry key="jdbc.postgresql.url">jdbc:postgresql://127.0.0.1:5432/DBS</entry>
+	<entry key="jdbc.postgresql.username">testuser</entry>
+    <entry key="jdbc.postgresql.password">testuser</entry>
+</properties>
+
+TOBE
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<entry key="jdbc.postgresql.driverClassName.origin">org.postgresql.Driver</entry>
+	<entry key="jdbc.postgresql.url.origin">jdbc:postgresql://127.0.0.1:5432/DBS</entry>
+	<entry key="jdbc.postgresql.driverClassName">net.sf.log4jdbc.sql.jdbcapi.DriverSpy</entry>
+	<entry key="jdbc.postgresql.url">jdbc:log4jdbc:postgresql://127.0.0.1:5432/DBS</entry>
+	<entry key="jdbc.postgresql.username">testuser</entry>
+    <entry key="jdbc.postgresql.password">testuser</entry>
+</properties>
+
+```
+
+### **출력**
+
+```
+[INFO ] 2022-01-13 16:28:09.192 [http-bio-8080-exec-2] sqlonly - SELECT * FROM springmvc.test
+
+[INFO ] 2022-01-13 16:28:09.228 [http-bio-8080-exec-2] resultsettable - 
+|-----------|-----------|
+|english    |korean     |
+|-----------|-----------|
+|culture    |문화, 교양     |
+|experience |경험         |
+|education  |교육         |
+|symbol     |상징         |
+|effect     |결과, 영향, 효과 |
+|liberty    |자유         |
+|affair     |사건, 일      |
+|comfort    |안락, 위안     |
+|tradition  |전통, 전설     |
+|subject    |학과, 주제, 주어 |
+|-----------|-----------|
+
+```
+
+
+## 5. log4j2 Spring profiles 에 따른 동적 사용
+
+- logback의 경우 기본 logback 설정파일(resource/ 아래 기본 설정파일)에서 다음과 같이 설정하면 원하는 디렉터리에 있는 logback 설정파일을 추가할 수 있다.
+
+  - resources/logback.xml
+    ```
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+      <include resource="config/${spring.profiles.active}/logback.xml"/>
+    </configuration>
+    ```
+
+  - resources/local/logback.xml
+
+    ```
+    <included>
+      <properties> ... </properties>
+      <appenders> ... </appenders>
+      <loggers> ... </loggers>
+    </included>
+    ```
+
+- log4j2 또한 Logback 과 같이 외부 파일을 import 할 수 있는 [XInclude](https://logging.apache.org/log4j/log4j-2.1/manual/configuration.html#XInclude) 가 있다.
+
+  - resources/log4j2.xml
+    
+    ```
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration xmlns:xi="http://www.w3.org/2001/XInclude"
+                  status="warn" name="log4j2">
+      <properties>
+        <property name="filename">log4j2.log</property>
+      </properties>
+      <xi:include href="log4j2-local.xml" />
+    </configuration>
+    ```
+
+  - resources/log4j2-local.xml
+
+    ```
+    <appenders> ... </appenders>
+    <loggers> ... </loggers>
+    ```
+
+- 하지만, log4j2의 XInclude 의 경우 href 를 통해 추가하려는 설정 파일의 위치를 정의하게 되는데 이때 ${spring.profiles.active}와 같은 변수를 입력할 수 없다는 단점이 있다. (각 설정에 맞는 분기를 할 수 없음.)
+
+-이러한 문제를 해결하기 위해 web.xml 상에서 log4j2.xml 설정파일을 기존 /resource/ 디렉터리 아래에서 각 spring profiles에 맞는 위치에 있는 log4j2 설정파일을 읽어오도록 설정해 주어 각 개발 환경 별 logging을 동적으로 할당해 준다.
+
+1. build.gradle 
+   1. `compile "org.apache.logging.log4j:log4j-web:${version.log4j2}"` 추가
+   2. gradle - refresh gradle project 수행(build)
+   3. 아래 2번의 Log4jSevletContextListener가 log4j-web 안에 있음
+2. web.xml 수정(추가)
+    
+    ```
+    <!-- spring profiles에 따른 log4j2 분기 -->
+  	<context-param>
+  		<param-name>log4jConfiguration</param-name>
+  		<param-value>classpath:${spring.profiles.active}/log4j2.xml</param-value>
+  	</context-param>
+
+    <!-- log4j2 설정파일 읽어오기 위한 listener -->
+  	<listener>
+  		<listener-class>org.apache.logging.log4j.web.Log4jServletContextListener</listener-class>
+  	</listener>
+    ```
+3. context-param에 정의한 log4j2.xml 파일위치에 log4j2 설정파일을 생성 및 작성한다.
+
+
