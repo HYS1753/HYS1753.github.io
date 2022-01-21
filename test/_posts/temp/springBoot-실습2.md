@@ -210,6 +210,8 @@ context.getBean("testBean")
 ### Test Table
 
 ```
+drop table springmvc.dictionary;
+
 CREATE TYPE yn_check AS ENUM('Y', 'N');
 
 create table springmvc.dictionary (
@@ -218,7 +220,22 @@ create table springmvc.dictionary (
 	korean varchar(200),
 	delete_yn yn_check NOT NULL DEFAULT 'N',
 	modified_date timestamp NULL
-)
+);
+
+
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date) values('culture', '문화, 교양', 'N', now());
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date)values('experience', '경험', 'N', now());
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date)values('education', '교육', 'N', now());
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date)values('symbol', '상징', 'N', now());
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date)values('effect', '결과, 영향, 효과', 'N', now());
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date)values('liberty', '자유', 'N', now());
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date)values('affair', '사건, 일', 'N', now());
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date)values('comfort', '안락, 위안', 'N', now());
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date)values('tradition', '전통, 전설', 'N', now());
+insert into springmvc.dictionary (english, korean, delete_yn, modified_date)values('subject', '학과, 주제, 주어', 'N', now());
+
+
+select * from springmvc.dictionary
 ```
 
 - 위와 같이 영어 사전 테이블을 작성하며 각각 컬럼은 다음과 같다
@@ -323,7 +340,7 @@ public interface DictionaryMapper {
 		) VALUES (
 			#{english}
 			, #{korean}
-			, coalesce(#{delete_yn}, yn_check 'N')
+			, coalesce(#{deleteYN}::springmvc.yn_check, springmvc.yn_check 'N')
 			, NOW()
 		)
 	</insert>
@@ -342,6 +359,7 @@ public interface DictionaryMapper {
 		SET
 			english = #{english}
 			, korean = #{korean}
+			, delete_yn = #{deleteYN}::springmvc.yn_check
 			, modified_date = NOW()
 		WHERE
 			idx = #{idx}
@@ -361,9 +379,10 @@ public interface DictionaryMapper {
 		FROM dictionary
 		WHERE
 			delete_yn = 'N'
+		ORDER BY idx
 	</select>
 	
-	<select id="selectDictionaryCount" resultType="long">
+	<select id="selectDictionaryCount" resultType="int">
 		SELECT count(*)
 		FROM dictionary
 		WHERE

@@ -306,6 +306,73 @@ public class DictionaryController {
 		}
 		return "dictionary/write";
 	}
+
+	@RequestMapping(value="/dictionary/delete.do", method = RequestMethod.POST)
+	public String deleteDictionary(@RequestParam(value = "idx", required = false) Long idx, Model model) {
+		try {
+			if (idx == null) {
+				// TODO => idx 입력 오류(올바르지 않은 접근)
+				return "redirect:/dictionary/list.do";
+			} else {
+				DictionaryDTO dic = dictionaryService.getDictionary(idx);
+				if (dic == null || "Y".equals(dic.getDeleteYN())) {
+					// TODO => 이미 삭제된 단어임을 알림
+				} else {
+					boolean result = dictionaryService.deleteDictionary(idx);
+					if (result == true){
+						// TODO => 삭제 성공
+					} else {
+						// TODO => 삭제 실패
+					}
+				}
+			}			
+		} catch (Exception e) {
+			// TODO => 오류처리
+		}
+		return "redirect:/dictionary/list.do";
+	}
+
+	@PostMapping(value="/dictionary/register.do")
+	public String registerDictionary(final DictionaryDTO params) {
+		try {
+			System.out.println(params);
+			boolean isRegistered = dictionaryService.insertDictionary(params);
+			if (isRegistered == false) {
+				// TODO => 게시글 등록에 실패하였다는 메시지를 전달
+			}
+		} catch (DataAccessException e) {
+			// TODO => 데이터베이스 처리 과정에 문제가 발생하였다는 메시지를 전달
+
+		} catch (Exception e) {
+			// TODO => 시스템에 문제가 발생하였다는 메시지를 전달
+		}
+
+		return "redirect:/dictionary/list.do";
+	}
+	
+	@GetMapping(value="/dictionary/list.do")
+	public String openDictionaryList(Model model) {
+		List<DictionaryDTO> dicList = dictionaryService.getDictionaryList();
+		model.addAttribute("dictionaryList", dicList);
+		return "dictionary/list";
+	}
+
+	@GetMapping(value = "/dictionary/view.do")
+	public String openDictionaryDetail(@RequestParam(value = "idx", required = false) Long idx, Model model) {
+		if (idx == null) {
+			// TODO => 올바르지 않은 접근이라는 메시지를 전달하고, 게시글 리스트로 리다이렉트
+			return "redirect:/board/list.do";
+		}
+
+		DictionaryDTO dic = dictionaryService.getDictionary(idx);
+		if (dic == null || "Y".equals(dic.getDeleteYN())) {
+			// TODO => 없는 게시글이거나, 이미 삭제된 게시글이라는 메시지를 전달하고, 게시글 리스트로 리다이렉트
+			return "redirect:/board/list.do";
+		}
+		model.addAttribute("dictionary", dic);
+
+		return "dictionary/view";
+	}
 }
 
 ```
@@ -319,6 +386,8 @@ public class DictionaryController {
 
 
 ## 4. 사용자가 보게 되는 View
+
+### 입력 FORM
 
 - resources/templates/dictionary/write.html을 생성하고 다음과 같이 작성한다.
 
@@ -340,7 +409,7 @@ public class DictionaryController {
 
 <!-- 타임리프 적용 -->
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="dictionary/layout/basic">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="dictionary/layout/basic">
 	<th:block layout:fragment="title">
 		<title>thiThe page is a write page</title>
 	</th:block>
@@ -355,7 +424,8 @@ public class DictionaryController {
 				<div class="form-group">
 					<label for="deleteYN" class="col-sm-2 control-label">삭제 여부 설정</label>
 					<div class="col-sm-10" style="margin-top: 10px;">
-						<input type="checkbox" th:value="*{deleteYN}" th:checked="*{#strings.equals( deleteYN, 'Y' )}" />
+						<input type="radio" name="deleteYN" th:value="Y" th:checked="*{#strings.equals( deleteYN, 'Y' )}"/>삭제
+						<input type="radio" name="deleteYN" th:value="N" th:checked="*{#strings.equals( deleteYN, 'N' )}"/>저장
 					</div>
 				</div>
 
@@ -387,8 +457,6 @@ public class DictionaryController {
 			/*<![CDATA[*/
 
 			function registerDictionary(form) {
-
-				form.deleteYN.value = form.deleteYN.checked == false ? 'N' : 'Y';
 
 				var result = (
 						   isValid(form.english, "영어", null, null)
@@ -428,5 +496,216 @@ public class DictionaryController {
     - th:filed 를 이용한 사용자 입력 필드(input, textarea 등)은 id, name, value 속성 값이 자동으로 매핑되기 때문에 따로 속성을 지정할 필요가 없으며 th:field는 ${} 표현식이 아닌 *{} 표현식을 사용한다. 
     - th:object 와 th:field 는 컨트롤러에서 특정 클래스의 객체를 전달받은 경우에만 사용할 수 있다.
     - 만약 checkbox 만들 시 제대로 연동이 안되는 문제가 있을 경우 각각의 id, name을 지정해 주어서 해결할 수 있다.
-- **th:checked**
-- https://congsong.tistory.com/16?category=749196
+    - **변수식으로 사용하는 `${}`와 메세지방식 `#{}`, 객체변수식인 `*{}`, 링크방식 `@{}`**
+- **th:checked** : 체크박스의 경우 th:checked 속성을 이용해서 조건이 true 에 해당하면 체크 속성을 적용한다. 여기서는 타임리프의 equals 함수를 사용하여 값을 비교한다.
+- **layout:fragment="script"** : 자바스크립트도 페이지마다 로직이 다르기 때문에 layout:fragment를 사용한다.
+- **th:inline="javascript"** : script 태그에 th:inline 속성을 javascript로 지정해야 자바 스크립트를 사용할 수 있다.
+- **`<![CDATA[]]>`** : 타임리프는 `<`, `>` 과 같은 태그를 엄격하게 검사하기 떄문에 태그 사용시 주의해야 하며 자바스크립트는 반드시 CDATA로 묶어줘 특수문자를 문자열로 치환한다.
+- **onsubmit="return registerDictionary(this)"** : 하단에 있는 registerBoard 함수를 실행시키게 되며 this에는 폼 객체가 들어가기 된다.
+- **checkbox** : 원래는 밑에 있는 text 처럼 th:field로 하면 위에 적힌 것들이 자동으로 생성되나, deleteYN이 true나 false를 값으로 가지지 않기때문에 따로 처리해 줘야 한다.
+
+
+### LIST FORM
+
+- resources/templates/dictionary/list.html을 생성하고 다음과 같이 작성한다.
+
+```
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="dictionary/layout/basic">
+	<th:block layout:fragment="title">
+		<title>This page is a list page</title>
+	</th:block>
+
+	<th:block layout:fragment="search">
+		<form action="#" id="searchform-header" class="searchform js__toggle active pull-right">
+			<input type="search" placeholder="Search..." class="input-search">
+			<button class="mdi mdi-magnify button-search" type="submit">
+				<i class="fa fa-search" aria-hidden="true"></i>
+			</button>
+		</form>
+	</th:block>
+
+	<th:block layout:fragment="content">
+		<div class="table-responsive clearfix">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>번호</th>
+						<th>영어</th>
+						<th>한글</th>
+						<th>수정일</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${not #lists.isEmpty( dictionaryList )}" th:each="row : ${dictionaryList}">
+						<td scope="row" th:text="${row.idx}"></td>
+						<td class="text-left">
+							<a th:href="@{/dictionary/view.do( idx=${row.idx} )}" th:text="${row.english}"></a>
+						</td>
+						<td th:text="${row.korean}"></td>
+						<td th:text="${#temporals.format( row.modifiedDate, 'yyyy-MM-dd' )}"></td>
+						<!-- 다음과 같이 조건을 추가하여 list 요소를 추가할 수 있다. -->
+						<!-- <td scope="row" th:text="${#string.equals( row.deleteYN, 'Y') ? '삭제됨' : row.idx}"></td> -->
+					</tr>
+					<tr th:unless="${not #lists.isEmpty( dictionaryList )}">
+						<td colspan="4">조회된 결과가 없습니다.</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div class="btn_wrap text-right">
+				<a th:href="@{/dictionary/write.do}" class="btn btn-primary waves-effect waves-light">Write</a>
+			</div>
+
+			<th:block layout:fragment="paging">
+				<nav aria-label="Page navigation" class="text-center">
+					<ul class="pagination">
+						<li>
+							<a href="#" aria-label="Previous">
+								<span aria-hidden="true">&laquo;</span>
+							</a>
+						</li>
+						<li><a href="#">1</a></li>
+						<li><a href="#">2</a></li>
+						<li><a href="#">3</a></li>
+						<li><a href="#">4</a></li>
+						<li><a href="#">5</a></li>
+						<li>
+							<a href="#" aria-label="Next">
+								<span aria-hidden="true">&raquo;</span>
+							</a>
+						</li>
+					</ul>
+				</nav>
+			</th:block>
+		</div>
+	</th:block>
+</html>
+```
+
+- **layout:frangment="search"** : 사전 리스트에서 특저어 단어를 검색할 수 있는 영역
+- **layout:fragment="content"** : 리스트 페이지의 실제 데이터가 들어가는 영역 리스트는 대부분 테이블로 만들어 처리한다.
+- **th:if, th:unless** : if와 else 문과 같다. 단 unless에서는 일반적인 else와 달리 if에 들어가는 조건과 동일한 조건을 가지고 있어야 한다. 즉 if 문과 조건이 동일하지만 if 조건과 다른조건인 경우 unless 구문이 실행되게 되는것.
+- **#list.isEmpty** : 해당 함수는 인자로 지정한 데이터가 비어있는지 확인하는 함수이다. 컨트롤러의 openDictionaryList 메소드에서 전달받은 dictionaryList가 비어있는지 확인하는것. isEmpty는 비어있으면 true를 반환하는데 함수 앞의 not은 부정을 의미해 위에 처럼 `not #lists.isEmpty( dictionaryList )` 또는`! #lists.isEmpty( dictionaryList )` 또는 `#lists.isEmpty( dictionaryList ) == false` 왁 타이 적용할 수 있다. not 뒤에 뛰어쓰기는 가독성을 위한 띄어쓰기로 있으나 없으나 상관 없다.
+- **th:each**
+  - JSTL의 `<c:forEach>` 또는 자바의 forEach와 유사한 기능으로 여기서는 row라는 이름으로 DictionaryList를 순환해 데이터를 출력한다.
+- **td scope** : 해당 셀리 row 또는 Column 에대한 헤더 셀임을 명시한다.
+- **a th:href** : 해당 영단어를 클릭하게 되면 연결된 href로 이동하게 되며 여기서는 해당 단어 상세 보기로 이동한다.
+    - 보통 href 속성에 따라 파라미터로 포함시킬 때 첫번째 파라미터는 ? 로 연결하고 두번째 부터는 &로 연결한다.
+    - 타임리프는 URI 뒤에 괄호를 열어 파라미터를 포함한다.
+    - ex. 일반적인 GET : /dictinoary/view.do?idx=${idx}&page=${page}
+    - ex. 타임리프 GET : /dictionary/view.do(idx=${idx},page=${page})
+- **td colspan** : 열 합치기
+- **th:herf="@{/dictionary/write.do}** : 단어 입력 페이지 이동
+
+
+### view Form
+
+- resources/templates/dictionary/view.html을 생성하고 다음과 같이 작성한다.
+
+```
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="dictionary/layout/basic">
+	<th:block layout:fragment="title">
+		<title>this is view page</title>
+	</th:block>
+
+	<th:block layout:fragment="content">
+		<div class="card-content">
+			<form class="form-horizontal form-view" th:object="${dictionary}">
+				<div class="form-group">
+					<label for="inp-type-1" class="col-sm-2 control-label">인덱스</label>
+					<div class="col-sm-10">
+						<p class="form-control" th:text="*{idx}"></p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="inp-type-2" class="col-sm-2 control-label">영어</label>
+					<div class="col-sm-10">
+						<p class="form-control" th:text="*{english}"></p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="inp-type-5" class="col-sm-2 control-label">한국어</label>
+					<div class="col-sm-10">
+						<p class="form-control" th:text="*{korean}"></p>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="inp-type-5" class="col-sm-2 control-label">수정일</label>
+					<div class="col-sm-10">
+						<p class="form-control" th:text="*{#temporals.format( modifiedDate, 'yyyy-MM-dd' )}"></p>
+					</div>
+				</div>
+			</form>
+
+			<div class="btn_wrap text-center">
+				<a th:href="@{/dictionary/list.do}" class="btn btn-default waves-effect waves-light">뒤로가기</a>
+				<a th:href="@{/dictionary/write.do( idx=${dictionary.idx} )}" class="btn btn-primary waves-effect waves-light">수정</a>
+				<button type="button" class="btn btn-danger waves-effect waves-light" th:onclick="deleteDictioanry([[ ${dictionary.idx} ]])">삭제</button>
+			</div>
+		</div>
+		<!-- /.card-content -->
+	</th:block>
+
+	<th:block layout:fragment="add-content">
+		<div class="box-content">
+			<div class="card-content">
+				<div class="clearfix">
+					<h4 class="box-title pull-left">Comment</h4>
+					<!-- /.box-title -->
+				</div>
+
+				<form class="form-horizontal form-view">
+					<div class="input-group margin-bottom-20">
+						<input type="email" class="form-control" placeholder="">
+						<div class="input-group-btn"><button type="button" class="btn waves-effect waves-light"><i class="fa fa-commenting" aria-hidden="true"></i></button></div>
+						<!-- /.input-group-btn -->
+					</div>
+					<ul class="notice-list">
+						<!-- notice-content-list -->
+					</ul>
+				</form>
+			</div>
+			<!-- /.card-content -->
+		</div>
+		<!-- /.box-content -->
+	</th:block>
+	
+	<th:block layout:fragment="script">
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+
+			function deleteDictioanry(idx) {
+
+				if (confirm(idx + "번 게시글을 삭제할까요?")) {
+					var uri = /*[[ @{/dictionary/delete.do} ]]*/ null ;
+					var html = "";
+
+					html += '<form name="dataForm" action="'+uri+'" method="post">';
+					html += '<input type="hidden" name="idx" value="'+idx+'" />';
+					$("body").append(html);
+					document.dataForm.submit();
+				}
+			}
+			/*[- end of function -]*/
+
+			/*]]>*/
+		</script>
+	</th:block>
+</html>
+```
+
+- **CDATA**
+  - conform : 자바스크립트의ㅡalert 과 유사한 기능으로 해당 함수를 통해 다시한번 단어에 대한 삭제 여부를 확인한다. 취소 및 확인 버튼은 각각 false, true 반환
+  - uri : Dictionary Controller에 선언한 삭제 메소드와 매핑된 URL
+  - html : dataFomr이라는 폼 안에 함수의 파라미터로 전달 받은 idx를 hidden 타입으로 추가한다. 따로 HTML에 추가해도 되지만 단어 삭제 이벤트가 발생했을 때만 엘리먼트를 추가하기 위해 동적으로 폼을 생성하는 방식을 사용한다.
+  - $("body").append(html) : HTML의 body 태그 안에 Html 변수에 담긴 폼을 추가 한다.
+  - document.dataForm.submit() : body에 추가된 폼을 찾아 컨트롤러로 전송한다.
+
+### alert
+
+https://congsong.tistory.com/22?category=749196
