@@ -1,12 +1,11 @@
 ---
 author_profile: true
 date: 2022-12-30
-title: "FE-Thymeleaf"
+title: "Web Development 5 - Template Engine(Thymeleaf)"
 categories: 
-    - FrontEnd
+    - web
 tag: 
-    - ViewTemplate
-    - 
+    - Thymeleaf
 
 # 목차
 toc: true  
