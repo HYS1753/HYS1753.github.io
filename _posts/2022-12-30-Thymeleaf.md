@@ -34,6 +34,7 @@ toc_sticky: true
 
 - 프로젝트내 디펜던시를 추가하여 사용한다.
 - Gradle 
+
 ```json
 dependencies{
     ...
@@ -41,6 +42,7 @@ dependencies{
 }
 ```
 - Maven
+
 ```html
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -56,6 +58,7 @@ dependencies{
     - Java 컨트롤러 단에서 Model 객체에 데이터를 담으면 html 변수로 값을 전달 할 수 있다.
     - `model.addAttribute("key","value")` 와 같이 추가하면 된다.
     - 예시 Java Controller
+
     ```java
     @RequestMapping("/test")
     @Controller
@@ -68,6 +71,7 @@ dependencies{
     }
     ```
     - 예시 html
+
     ```html
     <!DOCTYPE html>
     <html lang="ko" xmlns:th="http://www.thymeleaf.org">
@@ -80,17 +84,22 @@ dependencies{
     </body>
     </html>
     ```
+
 - 메시지방식(`#{}`)
     - 미리 정의된 message properties 파일이 존재하고 thymeleaf engine에 등록되어 있다면 #표현식으로 사용이 가능하다
+
     ```
     test.message=테스트메시지입니다.
     ```
+
     ```html
     <p th:text="#{test.message}"></p>
     <!-- 출력 : 테스트메시지입니다. -->
     ```    
+
 - 객체변수식(`*{}`)
     - `${}`와 유사하게 Context에 포함된 변수를 서용하지만 가까운 DOM 의 th:object가 존재하는 변수가 있다면 그 변ㅇ수값에 포함된 값을 가져온다.
+
     ```html
     <div th:object="${session.user}">
         <p>Name: <span th:text="*{firstName}">Sebastian</span>.</p>
@@ -98,8 +107,10 @@ dependencies{
         <p>Nationality: <span th:text="*{nationality}">Saturn</span>.</p>
     </div>
     ```
+
 - 링크방식(`@{}`)
     - URL을 표현하는 방법
+
     ```html
     <!-- Will produce 'http://localhost:8080/gtvg/order/details?orderId=3' (plus rewriting) -->
     <a href="details.html" th:href="@{http://localhost:8080/gtvg/order/details(orderId=${o.id})}">view</a>
@@ -113,16 +124,21 @@ dependencies{
 
 - 문자 더하기
     - `|`와 `|` 연산자 사이에 문자와 변수 표현식을 입력하면 static문자와 변수 문자가 이어져서 출력된다. 
+
     ```html
     <span th:text="|hello world, ${key}!|">
     ```
-    - `+` 연산자를 이용해서도 합치기 가능
+
+    - `+` 연산자를 이용해서도 합치기 
+    
     ```html
     <span th:text="'hello world, ' + ${key} + '!'">
     ```
+
     - `|`, `+` 연산자 혼용도 가능
 
 - if else 문
+
 ```html
 <!-- 단순 if 문 -->
 <div>
@@ -148,6 +164,7 @@ dependencies{
     - 타임리프에서 유일한 자체 태그로써 랜더링시 태그가 사라지고 html에서 빈영역으로 표현된다. 
     - 해당 block에서는 th:each, th:switch, th:if 등 여러 타임리프 자체 속성을 사용하여 반복문 또는 조건문을 사용할 수 있다.
     - th:each(for문)
+
     ```html
     <th:block th:each="item, status: ${userList}">
         <tr>
@@ -159,7 +176,9 @@ dependencies{
         </tr>    
     </th:block>
     ```
+
     - th:switch
+
     ```html
     <th:block th:switch="${user.gender}">
        <span th:case="M">남자<span>
@@ -170,6 +189,7 @@ dependencies{
 
 - properties 값을 타임리프로 가져오기
     - 컨트롤러(java) 단에서 가져오기
+
     ```java
     @Value("${key.context}")
     private String key;
@@ -179,12 +199,15 @@ dependencies{
         model.addAttribute("key", key);
     }
     ```
+
     ```html
     <div>
         key : <span th:text="${key}"></span>
     </div>
     ```
+
     - 타임리프에서 다이렉트로 가져오기
+    
     ```html
     <div>
         key : <span th:text="${@environment.getProperty('key.context')}"></span>
